@@ -43,17 +43,21 @@ class block_availability_dependencies extends block_base {
     }
 
     public function get_content() {
-        global $PAGE; // TODO try $this->page instead
-        $PAGE->requires->js_call_amd('block_availability_dependencies/test','init', array($this->get_dependencies()));
+        global $OUTPUT;
+        // global $PAGE; // TODO try $this->page instead
+        // $PAGE->requires->js_call_amd('block_availability_dependencies/test','init', array($this->get_dependencies()));
 
         // If content is cached.
         if ($this->content !== null) {
             return $this->content;
         }
 
+        $data = new stdClass();
+        $data->dependencies = $this->get_dependencies();
+
         // Create empty content.
         $this->content = new stdClass();
-        $this->content->text = 'Here we put together our content: ' . $this->get_dependencies();
+        $this->content->text = $OUTPUT->render_from_template('block_availability_dependencies/dependencies', $data);;
         $this->content->footer = '';
 
         return $this->content;
@@ -71,7 +75,7 @@ class block_availability_dependencies extends block_base {
         $dependencies = [];
 
         foreach ($modinfo->cms as $cm) {
-            $dependencies[$cm->id] = $cm->availability;
+            $dependencies[$cm->id] = json_decode($cm->availability);
         }
 
         return json_encode($dependencies);
