@@ -49,18 +49,29 @@ class block_availability_dependencies extends block_base {
             return $this->content;
         }
 
-        $course = $this->page->course;
-        $context = context_course::instance($course->id);
-
-        $modinfo = get_fast_modinfo($course);
-        $cms = $modinfo->get_cms();
-        $instances = $modinfo->get_instances();
-
         // Create empty content.
         $this->content = new stdClass();
-        $this->content->text = 'Here we put together our content';
+        $this->content->text = 'Here we put together our content: ' . $this->get_dependencies();
         $this->content->footer = '';
 
         return $this->content;
+    }
+
+    /**
+     * Read the completion -> availability dependencies between activities.
+     * @return string representing an json array of key value pairs
+     * module_id: availability as in the table {course_modules}
+     */
+    public function get_dependencies() {
+        $course = $this->page->course; // or global $COURSE
+
+        $modinfo = get_fast_modinfo($course);
+        $dependencies = [];
+
+        foreach ($modinfo->cms as $cm) {
+            $dependencies[$cm->id] = $cm->availability;
+        }
+
+        return json_encode($dependencies);
     }
 }
