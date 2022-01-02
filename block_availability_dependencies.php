@@ -43,6 +43,8 @@ class block_availability_dependencies extends block_base {
     }
 
     public function get_content() {
+        global $PAGE; // TODO try $this->page instead
+        $PAGE->requires->js_call_amd('block_availability_dependencies/test','init', array($this->get_dependencies()));
 
         // If content is cached.
         if ($this->content !== null) {
