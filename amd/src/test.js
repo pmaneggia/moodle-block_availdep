@@ -1,3 +1,3 @@
 export const init = (content) => {
-    console.log(`dependencies: '${content}'`);
+    console.log(content);
 };
