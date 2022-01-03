@@ -52,13 +52,17 @@ class block_availability_dependencies extends block_base {
             return $this->content;
         }
 
+        $course = $this->page->course;
+        $modinfo = get_fast_modinfo($course);
+
         $data = new stdClass();
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
         $data->dependencies = $this->get_dependencies();
+        $data->viewpageurl = new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $course->id]);
 
         // Create empty content.
         $this->content = new stdClass();
-        $this->content->text = $OUTPUT->render_from_template('block_availability_dependencies/dependencies', $data);;
+        $this->content->text = $OUTPUT->render_from_template('block_availability_dependencies/dependencies_block', $data);;
         $this->content->footer = '';
 
         return $this->content;

@@ -24,4 +24,4 @@
  */
 
 $string['pluginname'] = 'Availability dependencies';
-
+$string['open_page'] = 'Show in a new page';

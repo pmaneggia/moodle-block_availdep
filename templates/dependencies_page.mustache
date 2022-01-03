@@ -1,0 +1,51 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_availability_dependencies/dependencies_page
+
+    Template purpose and description.
+
+    Classes required for JS:
+    * TODO
+
+    Data attributes required for JS:
+    * TODO
+
+    Context variables required for this template:
+    * TODO
+
+    Example context (json):
+    {
+    }
+}}
+
+<div class="block_availability_dependencies_dependencies_page">
+  <svg class="availability_dependencies page">
+  </svg>
+</div>
+
+<script src="{{d3src}}"></script>
+<!-- load complete d3 inlcuding d3-force, use a CND for the moment (the line above is not needed then) -->
+<script type="module">
+  import * as d3 from "https://cdn.skypack.dev/d3@7"
+</script>
+
+{{#js}}
+require(['block_availability_dependencies/test'], function(module) {
+    module.init({{{dependencies}}});
+});
+{{/js}}
