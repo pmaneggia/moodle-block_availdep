@@ -34,16 +34,17 @@
 }}
 
 <div class="block_availability_dependencies_dependencies_block">
-  <svg class="availability_dependencies">
-  </svg>
-</div>
-
+  <div class=block_availability_dependencies_container>
+    <svg class="availability_dependencies block">
+    </svg>
+  </div>
   <a href="{{viewpageurl}}" class="btn btn-primary" data-action="new-request">
             {{#str}}open_page, block_availability_dependencies{{/str}}
   </a>
+</div>
 
 <script src="{{d3src}}"></script>
-<!-- load complete d3 inlcuding d3-force, use a CND for the moment (the line above is not needed then) -->
+<!-- load complete d3 inlcuding d3-force, use a CND for the moment -->
 <script type="module">
   import * as d3 from "https://cdn.skypack.dev/d3@7"
 </script>
