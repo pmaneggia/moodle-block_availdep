@@ -1,6 +1,7 @@
 export const init = (content) => {
     let simulation = generateSimulation(content);
     display(simulation);
+    simulation.on('tick', tick);
 };
 
 function generateSimulation(dependencies) {
@@ -42,6 +43,19 @@ function displayEdges(edges) {
         .attr('y1', e => e.source.y * 5 + 100)
         .attr('x2', e => e.target.x * 5 + 100)
         .attr('y2', e => e.target.y * 5 + 100);   
+}
+
+function tick() {
+    d3.select('svg').selectAll('circle')
+        .attr('r', 5)
+        .attr('cx', n => n.x * 5 + 100)
+        .attr('cy', n => n.y * 5 + 100);
+    d3.select('svg').selectAll('line')
+        .attr('stroke', 'black')
+        .attr('x1', e => e.source.x * 5 + 100)
+        .attr('y1', e => e.source.y * 5 + 100)
+        .attr('x2', e => e.target.x * 5 + 100)
+        .attr('y2', e => e.target.y * 5 + 100);      
 }
 
 
