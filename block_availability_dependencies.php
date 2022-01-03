@@ -43,7 +43,7 @@ class block_availability_dependencies extends block_base {
     }
 
     public function get_content() {
-        global $OUTPUT;
+        global $OUTPUT, $CFG;
         // global $PAGE; // TODO try $this->page instead
         // $PAGE->requires->js_call_amd('block_availability_dependencies/test','init', array($this->get_dependencies()));
 
@@ -53,6 +53,7 @@ class block_availability_dependencies extends block_base {
         }
 
         $data = new stdClass();
+        $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
         $data->dependencies = $this->get_dependencies();
 
         // Create empty content.
@@ -65,7 +66,7 @@ class block_availability_dependencies extends block_base {
 
     /**
      * Read the completion -> availability dependencies between activities.
-     * @return string representing an json array of key value pairs
+     * @return string representing a json array of key value pairs
      * module_id: availability as in the table {course_modules}
      */
     public function get_dependencies() {
