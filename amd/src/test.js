@@ -1,8 +1,23 @@
 export const init = (content) => {
+    setupSvg();
     let simulation = generateSimulation(content);
     display(simulation);
     simulation.on('tick', tick);
+    makeDraggable(simulation);
 };
+
+/**
+ * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
+ */
+function setupSvg() {
+    let svg = document.querySelector('svg');
+    let width = svg.parentNode.clientWidth;
+    let height = width * 0.6;
+    d3.select('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', -width/2 + ' ' + -height/2 + ' ' + width + ' ' + height);
+}
 
 function generateSimulation(dependencies) {
     return d3.forceSimulation(nodes(dependencies))
@@ -31,32 +46,40 @@ function displayNodes(nodes) {
     d3.select('svg').selectAll('circle').data(nodes)
         .enter().append('circle')
         .attr('r', 5)
-        .attr('cx', n => n.x * 5 + 100)
-        .attr('cy', n => n.y * 5 + 100);
+        .attr('cx', n => n.x)
+        .attr('cy', n => n.y);
 }
 
 function displayEdges(edges) {
     d3.select('svg').selectAll('line').data(edges)
         .enter().append('line')
         .attr('stroke', 'black')
-        .attr('x1', e => e.source.x * 5 + 100)
-        .attr('y1', e => e.source.y * 5 + 100)
-        .attr('x2', e => e.target.x * 5 + 100)
-        .attr('y2', e => e.target.y * 5 + 100);   
+        .attr('x1', e => e.source.x)
+        .attr('y1', e => e.source.y)
+        .attr('x2', e => e.target.x)
+        .attr('y2', e => e.target.y);
 }
 
 function tick() {
     d3.select('svg').selectAll('circle')
         .attr('r', 5)
-        .attr('cx', n => n.x * 5 + 100)
-        .attr('cy', n => n.y * 5 + 100);
+        .attr('cx', n => n.x)
+        .attr('cy', n => n.y);
     d3.select('svg').selectAll('line')
         .attr('stroke', 'black')
-        .attr('x1', e => e.source.x * 5 + 100)
-        .attr('y1', e => e.source.y * 5 + 100)
-        .attr('x2', e => e.target.x * 5 + 100)
-        .attr('y2', e => e.target.y * 5 + 100);      
+        .attr('x1', e => e.source.x)
+        .attr('y1', e => e.source.y)
+        .attr('x2', e => e.target.x)
+        .attr('y2', e => e.target.y);
 }
 
-
+function makeDraggable(simulation) {
+    d3.select('svg').selectAll('circle')
+        .call(d3.drag().on('drag',
+            (event, n) => {
+                n.fx = event.x;
+                n.fy = event.y;
+                simulation.alpha(1).restart();
+            }))
+}
 
