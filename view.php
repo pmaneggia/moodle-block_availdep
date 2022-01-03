@@ -42,7 +42,7 @@ $PAGE->navbar->add(get_string('pluginname','block_availability_dependencies'));
 //$PAGE->set_pagetype($strpagetype); TODO see if I nee is
 
 echo $OUTPUT->header();
-$renderable = new block_availability_dependencies\output\view_page();
+$renderable = new block_availability_dependencies\output\view_page($COURSE);
 $renderer = $PAGE->get_renderer('block_availability_dependencies');
 echo $renderer->render($renderable);
 echo $OUTPUT->footer();

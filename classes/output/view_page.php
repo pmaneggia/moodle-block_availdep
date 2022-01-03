@@ -27,9 +27,15 @@ namespace block_availability_dependencies\output;
 use renderable;                                                                                                                     
 use renderer_base;                                                                                                                  
 use templatable;                                                                                                                    
-use stdClass;                                                                                                                       
-             
+use stdClass; 
+
+//require_once("{$CFG->libdir}/modinfolib.php");
 class view_page implements renderable, templatable {
+    var $course = null;
+
+    public function __construct($course) {                                                                                        
+        $this->course = $course;                                                                                                
+    }
 
     /**                                                                                                                             
      * Export this data so it can be used as the context for a mustache template.                                                   
@@ -37,7 +43,25 @@ class view_page implements renderable, templatable {
      * @return stdClass                                                                                                             
      */                                                                                                                             
     public function export_for_template(renderer_base $output) {                                                                    
-        $data = new stdClass();                                                                                                     
+        $data = new stdClass(); 
+        $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
+        $data->dependencies = $this->get_dependencies();                                                                                                    
         return $data;                                                                                                               
+    }
+
+    /**
+     * Read the completion -> availability dependencies between activities.
+     * @return string representing a json array of key value pairs
+     * module_id: availability as in the table {course_modules}
+     */
+    public function get_dependencies() {
+        $modinfo = get_fast_modinfo($this->course);
+        $dependencies = [];
+
+        foreach ($modinfo->cms as $cm) {
+            $dependencies[$cm->id] = json_decode($cm->availability);
+        }
+
+        return json_encode($dependencies);
     }
 }
