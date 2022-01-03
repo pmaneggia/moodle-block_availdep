@@ -2,6 +2,7 @@ export const init = (content) => {
     setupSvg();
     let simulation = generateSimulation(content);
     display(simulation);
+    rememberD3Selections();
     simulation.on('tick', tick);
     makeDraggable(simulation);
 };
@@ -27,9 +28,9 @@ function setupSvg() {
  * @returns 
  */
 function generateSimulation(dependencies) {
-    return d3.forceSimulation(nodes(dependencies))
+    return d3.forceSimulation(computeNodes(dependencies))
         .force('charge', d3.forceManyBody())
-        .force('link', d3.forceLink(edges(dependencies)).id(d => d.id))
+        .force('link', d3.forceLink(computeEdges(dependencies)).id(d => d.id))
         .force('center', d3.forceCenter());
 }
 
@@ -38,7 +39,7 @@ function generateSimulation(dependencies) {
  * @param {*} dependencies
  * @returns 
  */
-function nodes(dependencies) {
+function computeNodes(dependencies) {
     return Object.keys(dependencies).map(x => {return {id: x}});
 }
 
@@ -46,7 +47,7 @@ function nodes(dependencies) {
  * Compute the edges (links) for d3-force
  * as an array of objects {source: cm_id, target: cm_id}.
  */ 
-function edges(data) {
+function computeEdges(data) {
     return Object.entries(data).filter(([key, value]) => value !== null)
         .flatMap(([key, value]) => {return value.c.map(x => {return {target: key, source: x.cm + ''}})});
 }
@@ -57,45 +58,58 @@ function edges(data) {
  */
 function display(simulation) {
     displayEdges(simulation.force('link').links());
-    displayNodes(simulation.nodes());
+    displayNodesAndLabels(simulation.nodes());
 }
 
-function displayEdges(edges) {
-    d3.select('svg').selectAll('line').data(edges)
+function displayEdges(s_edges) {
+    d3.select('svg').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', 'lightgray')
-        .attr('x1', e => e.source.x)
-        .attr('y1', e => e.source.y)
-        .attr('x2', e => e.target.x)
-        .attr('y2', e => e.target.y);
+        .attr('stroke-width', '2px')
+        .attr('marker-end', 'url(#arrow)');
 }
 
-function displayNodes(nodes) {
-    d3.select('svg').selectAll('circle').data(nodes)
-        .enter().append('circle')
+function displayNodesAndLabels(s_nodes) {
+    d3.select('svg').selectAll('circle').data(s_nodes)
+        .join('circle')
         .attr('fill', '#00a8d5')
-        .attr('stroke', 'lightgray')
-        .attr('r', 5)
-        .attr('cx', n => n.x)
-        .attr('cy', n => n.y);
+        .attr('stroke', 'white')
+        .attr('r', 5);
+    d3.select('svg').selectAll('text').data(s_nodes)
+        .join('text')
+        .attr('fill', 'darkgray')
+        .attr('font-family', 'sans-serif')
+        .attr('font-weight', 'bold');
+}
+
+let edges, nodes, labels;
+
+function rememberD3Selections() {
+    edges = d3.select('svg').selectAll('line');
+    nodes = d3.select('svg').selectAll('circle');
+    labels = d3.select('svg').selectAll('text');
 }
 
 /**
  * Update the simulation.
  */
 function tick() {
-    d3.select('svg').selectAll('circle')
+    nodes
         .attr('cx', n => n.x)
         .attr('cy', n => n.y);
-    d3.select('svg').selectAll('line')
+    edges
         .attr('x1', e => e.source.x)
         .attr('y1', e => e.source.y)
         .attr('x2', e => e.target.x)
         .attr('y2', e => e.target.y);
+    labels
+        .attr('x', n => n.x + 5)
+        .attr('y', n => n.y - 5)
+        .text(n => n.id);
 }
 
 function makeDraggable(simulation) {
-    d3.select('svg').selectAll('circle')
+    nodes
         .call(d3.drag().on('drag',
             (event, n) => {
                 n.fx = event.x;
