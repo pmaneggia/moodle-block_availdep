@@ -23,6 +23,7 @@ function edges(data) {
 
 function display(simulation) {
     displayNodes(simulation.nodes());
+    displayEdges(simulation.force('link').links());
 }
 
 function displayNodes(nodes) {
@@ -31,6 +32,16 @@ function displayNodes(nodes) {
         .attr('r', 5)
         .attr('cx', n => n.x * 5 + 100)
         .attr('cy', n => n.y * 5 + 100);
+}
+
+function displayEdges(edges) {
+    d3.select('svg').selectAll('line').data(edges)
+        .enter().append('line')
+        .attr('stroke', 'black')
+        .attr('x1', e => e.source.x * 5 + 100)
+        .attr('y1', e => e.source.y * 5 + 100)
+        .attr('x2', e => e.target.x * 5 + 100)
+        .attr('y2', e => e.target.y * 5 + 100);   
 }
 
 
