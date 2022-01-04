@@ -49,12 +49,12 @@ function computeNodes(dependencies) {
  * as an array of objects {source: cm_id, target: cm_id}.
  * 1) filter out all elements with no dependencies;
  * 2) filter out all dependencies that are not type: completion
- * 3) for each remaining produce an edge with source and target. 
+ * 3) for each remaining produce an edge with source and target, collecting also the operator. 
  */ 
 function computeEdges(data) {
     return Object.entries(data).filter(([key, value]) => (value !== null))
         .flatMap(([key, value]) => {
-            return value.c.filter(x => x.type == 'completion').map(x => {return {target: key, source: x.cm + ''}})
+            return value.c.filter(x => x.type == 'completion').map(x => {return {target: key, source: x.cm + '', op: value.op}})
         });
 }
 
