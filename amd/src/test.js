@@ -60,6 +60,8 @@ function computeEdges(data) {
 
 /**
  * Use d3 to display nodes and edges (links).
+ * The stroke-dasharray distingushes between the operator:
+ * '&' (solid) - '|' dotted and all other cases dot-dash 
  * @param {*} simulation 
  */
 function display(simulation) {
@@ -72,6 +74,7 @@ function displayEdges(s_edges) {
         .enter().append('line')
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
+        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 2' : '7 2 2 2')))
         .attr('marker-end', 'url(#arrow)');
 }
 
