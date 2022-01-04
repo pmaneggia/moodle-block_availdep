@@ -35,7 +35,8 @@ function generateSimulation(dependencies) {
 }
 
 /**
- * Compute the nodes for d3-force as an array of objects {id: cm_id}
+ * Compute the nodes for d3-force as an array of objects {id: cm_id}.
+ * 
  * @param {*} dependencies
  * @returns 
  */
@@ -46,10 +47,15 @@ function computeNodes(dependencies) {
 /**
  * Compute the edges (links) for d3-force
  * as an array of objects {source: cm_id, target: cm_id}.
+ * 1) filter out all elements with no dependencies;
+ * 2) filter out all dependencies that are not type: completion
+ * 3) for each remaining produce an edge with source and target. 
  */ 
 function computeEdges(data) {
-    return Object.entries(data).filter(([key, value]) => value !== null)
-        .flatMap(([key, value]) => {return value.c.map(x => {return {target: key, source: x.cm + ''}})});
+    return Object.entries(data).filter(([key, value]) => (value !== null))
+        .flatMap(([key, value]) => {
+            return value.c.filter(x => x.type == 'completion').map(x => {return {target: key, source: x.cm + ''}})
+        });
 }
 
 /**
