@@ -70,7 +70,7 @@ function display(simulation) {
 }
 
 function displayEdges(s_edges) {
-    d3.select('svg').selectAll('line').data(s_edges)
+    d3.select('svg g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
@@ -79,12 +79,12 @@ function displayEdges(s_edges) {
 }
 
 function displayNodesAndLabels(s_nodes) {
-    d3.select('svg').selectAll('circle').data(s_nodes)
+    d3.select('svg g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', '#00a8d5')
         .attr('stroke', 'white')
         .attr('r', 5);
-    d3.select('svg').selectAll('text').data(s_nodes)
+    d3.select('svg g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', 'darkgray')
         .attr('font-family', 'sans-serif')
@@ -94,9 +94,9 @@ function displayNodesAndLabels(s_nodes) {
 let edges, nodes, labels;
 
 function rememberD3Selections() {
-    edges = d3.select('svg').selectAll('line');
-    nodes = d3.select('svg').selectAll('circle');
-    labels = d3.select('svg').selectAll('text');
+    edges = d3.select('svg g').selectAll('line');
+    nodes = d3.select('svg g').selectAll('circle');
+    labels = d3.select('svg g').selectAll('text');
 }
 
 /**
