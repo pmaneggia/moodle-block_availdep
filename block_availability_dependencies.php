@@ -58,6 +58,7 @@ class block_availability_dependencies extends block_base {
         $data = new stdClass();
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
         $data->dependencies = $this->get_dependencies();
+        $data->modules = $this->get_modules_with_names();
         $data->viewpageurl = new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $course->id]);
 
         // Create empty content.
@@ -81,8 +82,22 @@ class block_availability_dependencies extends block_base {
 
         foreach ($modinfo->cms as $cm) {
             $dependencies[$cm->id] = json_decode($cm->availability);
+
         }
 
         return json_encode($dependencies);
+    }
+
+    public function get_modules_with_names() {
+        $course = $this->page->course; // or global $COURSE
+
+        $modinfo = get_fast_modinfo($course);
+        $modules = [];
+
+        foreach ($modinfo->cms as $cm) {
+            $modules[$cm->id] = $cm->get_name();
+        }
+
+        return json_encode($modules);
     }
 }

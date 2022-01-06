@@ -1,6 +1,8 @@
-export const init = (content) => {
+import ajax from 'core/ajax';
+
+export const init = (dependencies, modules) => {
     setupSvg();
-    let simulation = generateSimulation(content);
+    let simulation = generateSimulation(dependencies, modules);
     display(simulation);
     rememberD3Selections();
     simulation.on('tick', tick);
@@ -24,12 +26,12 @@ function setupSvg() {
  * Generate a simulation, using the nodes and edges (links)
  * extracted from json string representing the dependencies between course modules.
  * The nodes are indexed by the course module id.
- * @param {*} dependencies
+ * @param {*} dependencies, modules
  * @returns 
  */
-function generateSimulation(dependencies) {
-    return d3.forceSimulation(computeNodes(dependencies))
-        .force('charge', d3.forceManyBody())
+function generateSimulation(dependencies, modules) {
+    return d3.forceSimulation(computeNodes(modules))
+        .force('charge', d3.forceManyBody().strength(-300))
         .force('link', d3.forceLink(computeEdges(dependencies)).id(d => d.id))
         .force('center', d3.forceCenter());
 }
@@ -37,11 +39,11 @@ function generateSimulation(dependencies) {
 /**
  * Compute the nodes for d3-force as an array of objects {id: cm_id}.
  * 
- * @param {*} dependencies
+ * @param {*} modules
  * @returns 
  */
-function computeNodes(dependencies) {
-    return Object.keys(dependencies).map(x => {return {id: x}});
+ function computeNodes(modules) {
+    return Object.entries(modules).map(([key, value]) => {return {id: key, name: value + '!'}});
 }
 
 /**
@@ -51,8 +53,8 @@ function computeNodes(dependencies) {
  * 2) filter out all dependencies that are not type: completion
  * 3) for each remaining produce an edge with source and target, collecting also the operator. 
  */ 
-function computeEdges(data) {
-    return Object.entries(data).filter(([key, value]) => (value !== null))
+function computeEdges(dependencies) {
+    return Object.entries(dependencies).filter(([key, value]) => (value !== null))
         .flatMap(([key, value]) => {
             return value.c.filter(x => x.type == 'completion').map(x => {return {target: key, source: x.cm + '', op: value.op}})
         });
@@ -88,7 +90,8 @@ function displayNodesAndLabels(s_nodes) {
         .join('text')
         .attr('fill', 'darkgray')
         .attr('font-family', 'sans-serif')
-        .attr('font-weight', 'bold');
+        .attr('font-weight', 'bold')
+        .attr('font-size', 'small');
 }
 
 let edges, nodes, labels;
@@ -114,7 +117,8 @@ function tick() {
     labels
         .attr('x', n => n.x + 5)
         .attr('y', n => n.y - 5)
-        .text(n => n.id);
+        .text(n => n.name);
+
 }
 
 function makeDraggable(simulation) {
