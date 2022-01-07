@@ -26,7 +26,6 @@
 
 require_once(__DIR__ . '/../../config.php');
 
-//$blockid = required_param('blockid', PARAM_INT);
 $courseid  = required_param('courseid', PARAM_INT);
 $context = context_course::instance($courseid, MUST_EXIST);
 
@@ -35,14 +34,15 @@ $PAGE->set_url(new moodle_url('/block/availability_dependencies/view.php', ['cou
 
 require_login($courseid);
 
-$PAGE->set_pagelayout('base'); //TODO try also 'standard' and 'course' or 'incourse'
+$PAGE->set_pagelayout('standard'); //TODO try also 'standard' and 'course' or 'incourse'
 $PAGE->set_title(get_string('pluginname','block_availability_dependencies'));
-$PAGE->set_heading('Display completion -> availability dependencies for course ' . $courseid);
+$PAGE->set_heading('Display completion -> availability dependencies for course ' . get_fast_modinfo($courseid)->get_course()->fullname);
 $PAGE->navbar->add(get_string('pluginname','block_availability_dependencies'));
-//$PAGE->set_pagetype($strpagetype); TODO see if I nee is
+
+$PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
 
 echo $OUTPUT->header();
-$renderable = new block_availability_dependencies\output\view_page($COURSE);
+$renderable = new block_availability_dependencies\output\view_page();
 $renderer = $PAGE->get_renderer('block_availability_dependencies');
 echo $renderer->render($renderable);
 echo $OUTPUT->footer();

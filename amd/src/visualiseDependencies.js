@@ -2,7 +2,6 @@ import Ajax from 'core/ajax';
 
 export const init = (params) => {
     setupSvg();
-    console.log(params);
     var promises = Ajax.call([{
         methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
         args: {courseid: params}
