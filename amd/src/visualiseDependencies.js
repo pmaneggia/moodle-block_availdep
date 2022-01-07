@@ -1,12 +1,22 @@
-import ajax from 'core/ajax';
+import Ajax from 'core/ajax';
 
-export const init = (dependencies, modules) => {
+export const init = (params) => {
     setupSvg();
-    let simulation = generateSimulation(dependencies, modules);
-    display(simulation);
-    rememberD3Selections();
-    simulation.on('tick', tick);
-    makeDraggable(simulation);
+    console.log(params);
+    var promises = Ajax.call([{
+        methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
+        args: {courseid: params}
+     }]);
+
+    promises[0].fail(ex => console.log(ex))
+        .then(dependencies => {
+            dependencies.forEach(d => {d.dep = JSON.parse(d.dep)});
+            let simulation = generateSimulation(dependencies);
+            display(simulation);
+            rememberD3Selections();
+            simulation.on('tick', tick);
+            makeDraggable(simulation);
+        });
 };
 
 /**
@@ -29,21 +39,11 @@ function setupSvg() {
  * @param {*} dependencies, modules
  * @returns 
  */
-function generateSimulation(dependencies, modules) {
-    return d3.forceSimulation(computeNodes(modules))
+function generateSimulation(dependencies) {
+    return d3.forceSimulation(dependencies)
         .force('charge', d3.forceManyBody().strength(-300))
         .force('link', d3.forceLink(computeEdges(dependencies)).id(d => d.id))
         .force('center', d3.forceCenter());
-}
-
-/**
- * Compute the nodes for d3-force as an array of objects {id: cm_id}.
- * 
- * @param {*} modules
- * @returns 
- */
- function computeNodes(modules) {
-    return Object.entries(modules).map(([key, value]) => {return {id: key, name: value + '!'}});
 }
 
 /**
@@ -54,9 +54,9 @@ function generateSimulation(dependencies, modules) {
  * 3) for each remaining produce an edge with source and target, collecting also the operator. 
  */ 
 function computeEdges(dependencies) {
-    return Object.entries(dependencies).filter(([key, value]) => (value !== null))
-        .flatMap(([key, value]) => {
-            return value.c.filter(x => x.type == 'completion').map(x => {return {target: key, source: x.cm + '', op: value.op}})
+    return dependencies.filter(({id, name, dep}) => (dep !== null))
+        .flatMap(({id, name, dep}) => {
+            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.op}})
         });
 }
 

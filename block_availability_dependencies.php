@@ -44,22 +44,18 @@ class block_availability_dependencies extends block_base {
 
     public function get_content() {
         global $OUTPUT, $CFG;
-        // global $PAGE; // TODO try $this->page instead
-        // $PAGE->requires->js_call_amd('block_availability_dependencies/test','init', array($this->get_dependencies()));
+        global $PAGE; // TODO try $this->page instead
+        $courseid = $this->page->course->id;
+        $PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies','init', array($courseid));
 
         // If content is cached.
         if ($this->content !== null) {
             return $this->content;
         }
 
-        $course = $this->page->course;
-        $modinfo = get_fast_modinfo($course);
-
         $data = new stdClass();
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
-        $data->dependencies = $this->get_dependencies();
-        $data->modules = $this->get_modules_with_names();
-        $data->viewpageurl = new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $course->id]);
+        $data->viewpageurl = new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $courseid]);
 
         // Create empty content.
         $this->content = new stdClass();

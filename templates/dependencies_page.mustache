@@ -52,9 +52,3 @@
 
 <!-- load d3 -->
 <script src="{{d3src}}"></script>
-
-{{#js}}
-require(['block_availability_dependencies/visualiseDependencies'], function(module) {
-    module.init({{{dependencies}}});
-});
-{{/js}}
