@@ -50,12 +50,13 @@ function generateSimulation(dependencies) {
  * as an array of objects {source: cm_id, target: cm_id}.
  * 1) filter out all elements with no dependencies;
  * 2) filter out all dependencies that are not type: completion
- * 3) for each remaining produce an edge with source and target, collecting also the operator. 
+ * 3) for each remaining produce an edge with source and target, collecting also the operator.
+ * 4) the operator is changed to 'negLit' if the literal is negated i.e. dep.c.e is 0 (activity must not be completed) 
  */ 
 function computeEdges(dependencies) {
     return dependencies.filter(({id, name, dep}) => (dep !== null))
         .flatMap(({id, name, dep}) => {
-            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: dep.op}})
+            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.e ? dep.op : 'negLit'}})
         });
 }
 
