@@ -22,24 +22,21 @@
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace block_availability_dependencies\output;                                                                                                         
-                                                                                                                                    
-use renderable;                                                                                                                     
-use renderer_base;                                                                                                                  
-use templatable;                                                                                                                    
-use stdClass; 
+namespace block_availability_dependencies\output;
 
-//require_once("{$CFG->libdir}/modinfolib.php");
+use renderable;
+use renderer_base;
+use templatable;
+use stdClass;
 class view_page implements renderable, templatable {
 
-    /**                                                                                                                             
-     * Export this data so it can be used as the context for a mustache template.                                                   
-     *                                                                                                                              
-     * @return stdClass                                                                                                             
-     */                                                                                                                             
-    public function export_for_template(renderer_base $output) {                                                                    
-        $data = new stdClass(); 
+    /**
+     * Export this data so it can be used as the context for a mustache template.
+     * @return stdClass
+     */
+    public function export_for_template(renderer_base $output) {
+        $data = new stdClass();
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
-        return $data;                                                                                                               
+        return $data;
     }
 }

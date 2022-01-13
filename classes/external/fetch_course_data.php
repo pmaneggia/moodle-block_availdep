@@ -23,9 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_availability_dependencies\external;                                                                                                         
-                                                                                                                                    
-defined('MOODLE_INTERNAL') || die;                                                                                                  
+namespace block_availability_dependencies\external;
+
+defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
 require_once("$CFG->libdir/externallib.php");
@@ -55,8 +55,6 @@ class fetch_course_data extends external_api  {
      * @return //json {{id: cm_id_1, name: name_1, dep: {dep_1}, ... }
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
-        //$coursecontext = \context_course::instance($courseid);
-        //self::validate_context($coursecontext);
 
         $modinfo = get_fast_modinfo($courseid);
         $modules = [];
@@ -66,7 +64,7 @@ class fetch_course_data extends external_api  {
             $module['id'] = $cm->id;
             $module['name'] = $cm->get_name();
             $module['dep'] = $cm->availability;
-            array_push($modules, $module); 
+            array_push($modules, $module);
         }
 
         return $modules;
@@ -80,7 +78,7 @@ class fetch_course_data extends external_api  {
         return new external_multiple_structure(new external_single_structure([
             'id' => new external_value(PARAM_INT, 'course module id'),
             'name' => new external_value(PARAM_TEXT, 'module name', VALUE_OPTIONAL),
-            'dep' => new external_value(PARAM_TEXT, 'availability conditions as json string', VALUE_OPTIONAL)    
+            'dep' => new external_value(PARAM_TEXT, 'availability conditions as json string', VALUE_OPTIONAL)
         ]));
     }
 }

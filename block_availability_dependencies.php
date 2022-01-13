@@ -43,10 +43,9 @@ class block_availability_dependencies extends block_base {
     }
 
     public function get_content() {
-        global $OUTPUT, $CFG;
-        global $PAGE; // TODO try $this->page instead
+        global $OUTPUT;
         $courseid = $this->page->course->id;
-        $PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies','init', array($courseid));
+        $this->page->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
 
         // If content is cached.
         if ($this->content !== null) {
@@ -71,7 +70,7 @@ class block_availability_dependencies extends block_base {
      * module_id: availability as in the table {course_modules}
      */
     public function get_dependencies() {
-        $course = $this->page->course; // or global $COURSE
+        $course = $this->page->course;
 
         $modinfo = get_fast_modinfo($course);
         $dependencies = [];
@@ -85,7 +84,7 @@ class block_availability_dependencies extends block_base {
     }
 
     public function get_modules_with_names() {
-        $course = $this->page->course; // or global $COURSE
+        $course = $this->page->course;
 
         $modinfo = get_fast_modinfo($course);
         $modules = [];

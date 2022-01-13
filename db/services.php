@@ -23,8 +23,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $services = array(
-    'block_availability_dependencies_service'   => array( 
+    'block_availability_dependencies_service'   => array(
         'functions' => array (
             'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
         ),

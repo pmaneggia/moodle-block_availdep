@@ -23,20 +23,20 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_availability_dependencies\output;                                                                                                         
-                                                                                                                                    
-defined('MOODLE_INTERNAL') || die;                                                                                                  
-                                                                                                                                    
-use plugin_renderer_base;  
+namespace block_availability_dependencies\output;
+
+defined('MOODLE_INTERNAL') || die;
+
+use plugin_renderer_base;
 
 class renderer extends plugin_renderer_base {
-    /**                                                                                                                             
-     * Defer to template.                                                                                                                                                                                                                                      
-     * @param view_page $page                                                                                                                                                                                                                                 
-     * @return string html for the page                                                                                             
-     */                                                                                                                             
-    public function render_view_page($view_page) {                                                                                      
-        $data = $view_page->export_for_template($this);                                                                                  
-        return parent::render_from_template('block_availability_dependencies/dependencies_page', $data);                                                         
-    }           
+    /**
+     * Defer to template.
+     * @param viewpage $page
+     * @return string html for the page
+     */
+    public function render_view_page($viewpage) {
+        $data = $viewpage->export_for_template($this);
+        return parent::render_from_template('block_availability_dependencies/dependencies_page', $data);
+    }
 }
