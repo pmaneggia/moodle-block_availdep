@@ -55,7 +55,7 @@ function generateSimulation(dependencies) {
 function computeEdges(dependencies) {
     return dependencies.filter(({id, name, dep}) => (dep !== null))
         .flatMap(({id, name, dep}) => {
-            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.op}})
+            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: dep.op}})
         });
 }
 
