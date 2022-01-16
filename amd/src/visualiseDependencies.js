@@ -25,14 +25,15 @@
 import Ajax from 'core/ajax';
 
 export const init = (params) => {
-    setupSvg();
     var promises = Ajax.call([{
         methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
         args: {courseid: params}
-     }]);
+    }]);
 
     promises[0].fail(ex => console.log(ex))
         .then(dependencies => {
+            let dimentions = determineSvgSize();
+            setupSvg(dimentions);
             dependencies.forEach(d => {d.dep = JSON.parse(d.dep)});
             let simulation = generateSimulation(dependencies);
             display(simulation);
@@ -45,14 +46,19 @@ export const init = (params) => {
 /**
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
-function setupSvg() {
+function setupSvg(dimentions) {
+    d3.select('svg')
+        .attr('width', dimentions.width)
+        .attr('height', dimentions.height)
+        .attr('viewBox', -dimentions.width/2 + ' ' + -dimentions.height/2
+            + ' ' + dimentions.width + ' ' + dimentions.height);
+}
+
+function determineSvgSize() {
     let svg = document.querySelector('svg');
     let width = svg.parentNode.clientWidth;
     let height = width * 0.6;
-    d3.select('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('viewBox', -width/2 + ' ' + -height/2 + ' ' + width + ' ' + height);
+    return {width, height};
 }
 
 /**
@@ -65,7 +71,7 @@ function setupSvg() {
 function generateSimulation(dependencies) {
     return d3.forceSimulation(dependencies)
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdges(dependencies)).id(d => d.id))
+        .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id))
         .force('center', d3.forceCenter());
 }
 
