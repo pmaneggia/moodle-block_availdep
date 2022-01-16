@@ -70,9 +70,10 @@ function determineSvgSize() {
  */
 function generateSimulation(dependencies) {
     return d3.forceSimulation(dependencies)
+        .force('x0', d3.forceX())
+        .force('y0', d3.forceY())
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id))
-        .force('center', d3.forceCenter());
+        .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
 }
 
 /**
@@ -153,11 +154,18 @@ function tick() {
 
 function makeDraggable(simulation) {
     nodes
-        .call(d3.drag().on('drag',
+        .call(d3.drag()
+        .on('start', (event, n) => {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            n.fx = event.x;
+            n.fy = event.y;
+        })
+        .on('drag',
             (event, n) => {
                 n.fx = event.x;
                 n.fy = event.y;
-                simulation.alpha(1).restart();
-            }))
+            })
+        .on('end', (event) => {if (!event.active) simulation.alphaTarget(0);})
+        );
 }
 
