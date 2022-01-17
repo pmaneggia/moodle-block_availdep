@@ -32,8 +32,8 @@ export const init = (params) => {
 
     promises[0].fail(ex => console.log(ex))
         .then(dependencies => {
-            let dimentions = determineSvgSize();
-            setupSvg(dimentions);
+            let dimensions = determineSvgSize();
+            setupSvg(dimensions);
             dependencies.forEach(d => {d.dep = JSON.parse(d.dep)});
             let simulation = generateSimulation(dependencies);
             display(simulation);
@@ -46,12 +46,28 @@ export const init = (params) => {
 /**
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
-function setupSvg(dimentions) {
+function setupSvg(dimensions) {
     d3.select('svg')
-        .attr('width', dimentions.width)
-        .attr('height', dimentions.height)
-        .attr('viewBox', -dimentions.width/2 + ' ' + -dimentions.height/2
-            + ' ' + dimentions.width + ' ' + dimentions.height);
+        .attr('width', dimensions.width)
+        .attr('height', dimensions.height)
+        .attr('viewBox', -dimensions.width/2 + ' ' + -dimensions.height/2
+            + ' ' + dimensions.width + ' ' + dimensions.height);
+    addMarker();
+}
+
+function addMarker() {
+    d3.select('svg').select('g').append("defs").append("marker")
+      .attr('id', 'arrow')
+      .attr('viewBox', "0 0 10 10")
+      .attr('refX', 13.5)
+      .attr('refY', 5)
+      .attr('markerUnits', 'strokeWidth')
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 8)
+      .attr('orient', 'auto')
+    .append('path')
+      .attr('fill', 'lightgray')
+      .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 }
 
 function determineSvgSize() {
@@ -107,7 +123,8 @@ function displayEdges(s_edges) {
         .enter().append('line')
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
-        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 2' : '7 2 2 2')))
+        .attr("stroke-linecap", "round")
+        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 2' : '9 4 1 4')))
         .attr('marker-end', 'url(#arrow)');
 }
 
