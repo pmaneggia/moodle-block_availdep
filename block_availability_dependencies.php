@@ -45,12 +45,13 @@ class block_availability_dependencies extends block_base {
     public function get_content() {
         global $OUTPUT;
         $courseid = $this->page->course->id;
-        $this->page->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
 
         // If content is cached.
         if ($this->content !== null) {
             return $this->content;
         }
+
+        $this->page->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
 
         $data = new stdClass();
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
