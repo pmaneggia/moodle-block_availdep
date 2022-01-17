@@ -74,7 +74,7 @@ function generateSimulation(dependencies) {
         .force('y0', d3.forceY())
         .force('charge', d3.forceManyBody().strength(-300))
         .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
-}
+1}
 
 /**
  * Compute the edges (links) for d3-force
@@ -103,7 +103,7 @@ function display(simulation) {
 }
 
 function displayEdges(s_edges) {
-    d3.select('svg g').selectAll('line').data(s_edges)
+    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
@@ -112,17 +112,21 @@ function displayEdges(s_edges) {
 }
 
 function displayNodesAndLabels(s_nodes) {
-    d3.select('svg g').selectAll('circle').data(s_nodes)
+    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', '#00a8d5')
         .attr('stroke', 'white')
         .attr('r', 5);
-    d3.select('svg g').selectAll('text').data(s_nodes)
+    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', 'darkgray')
         .attr('font-family', 'sans-serif')
         .attr('font-weight', 'bold')
-        .attr('font-size', 'small');
+        .attr('font-size', 'small')
+      .clone().lower()
+        .attr('stroke', 'white')
+        .attr('stroke-width', 4)
+        .attr('stroke-opacity', 0.5);
 }
 
 let edges, nodes, labels;
