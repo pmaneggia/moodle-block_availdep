@@ -36,7 +36,7 @@ export const init = (params) => {
             setupSvg(dimensions);
             dependencies.forEach(d => {d.dep = JSON.parse(d.dep)});
             let simulation = generateSimulation(dependencies);
-            display(simulation);
+            displayGraph(simulation);
             rememberD3Selections();
             simulation.on('tick', tick);
             makeDraggable(simulation);
@@ -47,7 +47,7 @@ export const init = (params) => {
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
 function setupSvg(dimensions) {
-    d3.select('svg')
+    d3.select('svg.availability_dependencies')
         .attr('width', dimensions.width)
         .attr('height', dimensions.height)
         .attr('viewBox', -dimensions.width/2 + ' ' + -dimensions.height/2
@@ -56,7 +56,7 @@ function setupSvg(dimensions) {
 }
 
 function addMarker() {
-    d3.select('svg').select('g').append("defs").append("marker")
+    d3.select('svg.availability_dependencies').select('g').append('defs').append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
       .attr('refX', 13.5)
@@ -71,7 +71,7 @@ function addMarker() {
 }
 
 function determineSvgSize() {
-    let svg = document.querySelector('svg');
+    let svg = document.querySelector('svg.availability_dependencies');
     let width = svg.parentNode.clientWidth;
     let height = width * 0.6;
     return {width, height};
@@ -81,8 +81,8 @@ function determineSvgSize() {
  * Generate a simulation, using the nodes and edges (links)
  * extracted from json string representing the dependencies between course modules.
  * The nodes are indexed by the course module id.
- * @param {*} dependencies, modules
- * @returns 
+ * @param {json} dependencies
+ * @returns d3 simulation object
  */
 function generateSimulation(dependencies) {
     return d3.forceSimulation(dependencies)
@@ -90,7 +90,7 @@ function generateSimulation(dependencies) {
         .force('y0', d3.forceY())
         .force('charge', d3.forceManyBody().strength(-300))
         .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
-1}
+}
 
 /**
  * Compute the edges (links) for d3-force
@@ -109,25 +109,33 @@ function computeEdges(dependencies) {
 
 /**
  * Use d3 to display nodes and edges (links).
- * The stroke-dasharray distingushes between the operator:
- * '&' (solid) - '|' dotted and all other cases dot-dash 
- * @param {*} simulation 
+ * @param simulation
  */
-function display(simulation) {
+function displayGraph(simulation) {
     displayEdges(simulation.force('link').links());
     displayNodesAndLabels(simulation.nodes());
 }
 
+/**
+ * Add the graphical elements to display the edges.
+ * The stroke-dasharray distingushes between the operator:
+ * '&' (solid) - '|' dotted and all other cases dashdotted.
+ * @param s_edges Edges (links) in the d3 simulation.
+ */
 function displayEdges(s_edges) {
     d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
         .attr("stroke-linecap", "round")
-        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 2' : '9 4 1 4')))
+        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 4' : '9 4 1 4')))
         .attr('marker-end', 'url(#arrow)');
 }
 
+/**
+ * Add the graphical elements to display the nodes and labels.
+ * @param s_nodes Nodes in the d3 simulation.
+ */
 function displayNodesAndLabels(s_nodes) {
     d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
@@ -148,6 +156,9 @@ function displayNodesAndLabels(s_nodes) {
 
 let edges, nodes, labels;
 
+/**
+ * Save the graphical representation of edges, nodes and labals.
+ */
 function rememberD3Selections() {
     edges = d3.select('svg g').selectAll('line');
     nodes = d3.select('svg g').selectAll('circle');
@@ -173,6 +184,11 @@ function tick() {
 
 }
 
+/**
+ * Make nodes draggable.
+ * Once dragged a node is fixed to its assigned position in the simulation.
+ * @param simulation
+ */
 function makeDraggable(simulation) {
     nodes
         .call(d3.drag()
