@@ -128,7 +128,7 @@ function displayEdges(s_edges) {
         .attr('stroke', 'lightgray')
         .attr('stroke-width', '2px')
         .attr("stroke-linecap", "round")
-        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '2 4' : '9 4 1 4')))
+        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '1 4' : '9 4 1 4')))
         .attr('marker-end', 'url(#arrow)');
 }
 
