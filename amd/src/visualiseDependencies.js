@@ -34,7 +34,7 @@ export const init = (params) => {
         .then(dependencies => {
             let dimensions = determineSvgSize();
             setupSvg(dimensions);
-            dependencies.forEach(d => {d.dep = JSON.parse(d.dep)});
+            dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
             let simulation = generateSimulation(dependencies);
             displayGraph(simulation);
             rememberD3Selections();
@@ -98,12 +98,12 @@ function generateSimulation(dependencies) {
  * 1) filter out all elements with no dependencies;
  * 2) filter out all dependencies that are not type: completion
  * 3) for each remaining produce an edge with source and target, collecting also the operator.
- * 4) the operator is changed to 'negLit' if the literal is negated i.e. dep.c.e is 0 (activity must not be completed) 
+ * 4) the operator is changed to 'negLit' if the literal is negated i.e. depend.c.e is 0 (activity must not be completed) 
  */ 
 function computeEdges(dependencies) {
-    return dependencies.filter(({id, name, dep}) => (dep !== null))
-        .flatMap(({id, name, dep}) => {
-            return dep.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.e ? dep.op : 'negLit'}})
+    return dependencies.filter(({id, name, depend}) => (depend !== null))
+        .flatMap(({id, name, depend}) => {
+            return depend.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.e ? depend.op : 'negLit'}})
         });
 }
 
