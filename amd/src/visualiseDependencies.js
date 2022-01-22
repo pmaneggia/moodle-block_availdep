@@ -28,19 +28,20 @@ export const init = (params) => {
     var promises = Ajax.call([{
         methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
         args: {courseid: params}
-    }]);
+    }
+]);
 
-    promises[0].fail(ex => console.log(ex))
-        .then(dependencies => {
-            let dimensions = determineSvgSize();
-            setupSvg(dimensions);
-            dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
-            let simulation = generateSimulation(dependencies);
-            displayGraph(simulation);
-            rememberD3Selections();
-            simulation.on('tick', tick);
-            makeDraggable(simulation);
-        });
+promises[0].fail(ex => console.log(ex))
+    .then(dependencies => {
+        let dimensions = determineSvgSize();
+        setupSvg(dimensions);
+        dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
+        let simulation = generateSimulation(dependencies);
+        displayGraph(simulation);
+        rememberD3Selections();
+        simulation.on('tick', tick);
+        makeDraggable(simulation);
+    });
 };
 
 /**
@@ -98,12 +99,19 @@ function generateSimulation(dependencies) {
  * 1) filter out all elements with no dependencies;
  * 2) filter out all dependencies that are not type: completion
  * 3) for each remaining produce an edge with source and target, collecting also the operator.
+ * If the type of availability was based on the completion of the previous activity with completion
+ * update the value of the cm with the correct id instead of -1.
  * 4) the operator is changed to 'negLit' if the literal is negated i.e. depend.c.e is 0 (activity must not be completed) 
  */ 
 function computeEdges(dependencies) {
-    return dependencies.filter(({id, name, depend}) => (depend !== null))
-        .flatMap(({id, name, depend}) => {
-            return depend.c.filter(x => x.type == 'completion').map(x => {return {target: id, source: x.cm, op: x.e ? depend.op : 'negLit'}})
+    return dependencies.filter(({id, name, depend, predecessor}) => (depend !== null))
+        .flatMap(({id, name, depend, predecessor}) => {
+            return depend.c.filter(x => x.type == 'completion')
+                .map(x => {return {
+                    target: id, 
+                    source: x.cm == -1 ? predecessor : x.cm, 
+                    op: x.e ? depend.op : 'negLit'
+                }})
         });
 }
 
