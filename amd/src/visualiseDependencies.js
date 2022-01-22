@@ -36,8 +36,8 @@ promises[0].fail(ex => console.log(ex))
         let dimensions = determineSvgSize();
         setupSvg(dimensions);
         dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
-        let simulation = generateSimulation(dependencies);
-        displayGraph(simulation);
+        let simulation = generateSimplifiedSimulation(dependencies);
+        displaySimplifiedGraph(simulation);
         rememberD3Selections();
         simulation.on('tick', tick);
         makeDraggable(simulation);
@@ -93,6 +93,34 @@ function generateSimulation(dependencies) {
         .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
 }
 
+function generateSimplifiedSimulation(dependencies) {
+    return d3.forceSimulation(dependencies)
+        .force('x0', d3.forceX())
+        .force('y0', d3.forceY())
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('link', d3.forceLink(simplifyDependencies(dependencies)).distance(80).id(d => d.id));
+}
+
+/**
+ * For a simplified representation, flatten any nesting.
+ * @param {} dependencies 
+ */
+function simplifyDependencies(dependencies) {
+    // for an array of nested dependencies
+    // extract all the cm.id of leaves of type 'completion'
+    let leaves = (depend =>
+        depend.c.flatMap(d => d.op ? leaves(d) : (d.type === 'completion' ? d.cm : [])));
+    return dependencies
+        .filter(({id, name, depend, predecessor}) => (depend !== null))
+        .map(({id, name, depend, predecessor}) => 
+            leaves(depend).map(cm => {return {
+                target: id,
+                source: cm === -1 ? predecessor : cm,
+                name: name
+            }}))
+        .flat();
+}
+
 /**
  * Compute the edges (links) for d3-force
  * as an array of objects {source: cm_id, target: cm_id}.
@@ -125,6 +153,15 @@ function displayGraph(simulation) {
 }
 
 /**
+ * Use d3 to display nodes and edges (links).
+ * @param simulation
+ */
+ function displaySimplifiedGraph(simulation) {
+    displaySimplifiedEdges(simulation.force('link').links());
+    displaySimplifiedNodesAndLabels(simulation.nodes());
+}
+
+/**
  * Add the graphical elements to display the edges.
  * The stroke-dasharray distingushes between the operator:
  * '&' (solid) - '|' dotted and all other cases dashdotted.
@@ -141,10 +178,47 @@ function displayEdges(s_edges) {
 }
 
 /**
+ * Add the graphical elements to display the edges.
+ * The stroke-dasharray distingushes between the operator:
+ * '&' (solid) - '|' dotted and all other cases dashdotted.
+ * @param s_edges Edges (links) in the d3 simulation.
+ */
+ function displaySimplifiedEdges(s_edges) {
+    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
+        .enter().append('line')
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', '2px')
+        .attr("stroke-linecap", "round")
+        .attr('marker-end', 'url(#arrow)');
+}
+
+/**
  * Add the graphical elements to display the nodes and labels.
  * @param s_nodes Nodes in the d3 simulation.
  */
 function displayNodesAndLabels(s_nodes) {
+    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
+        .join('circle')
+        .attr('fill', '#00a8d5')
+        .attr('stroke', 'white')
+        .attr('r', 5);
+    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
+        .join('text')
+        .attr('fill', 'darkgray')
+        .attr('font-family', 'sans-serif')
+        .attr('font-weight', 'bold')
+        .attr('font-size', 'small')
+      .clone().lower()
+        .attr('stroke', 'white')
+        .attr('stroke-width', 4)
+        .attr('stroke-opacity', 0.5);
+}
+
+/**
+ * Add the graphical elements to display the nodes and labels.
+ * @param s_nodes Nodes in the d3 simulation.
+ */
+ function displaySimplifiedNodesAndLabels(s_nodes) {
     d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', '#00a8d5')

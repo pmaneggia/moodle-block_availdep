@@ -36,6 +36,8 @@ use external_value;
 use external_single_structure;
 use external_multiple_structure;
 
+use availability_completion;
+
 class fetch_course_data extends external_api  {
 
     /**
@@ -55,19 +57,39 @@ class fetch_course_data extends external_api  {
      * @return //json {{id: cm_id_1, name: name_1, dep: {dep_1}, ... }
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
-
         $modinfo = get_fast_modinfo($courseid);
-        $modules = [];
+        $predecessors = self::compute_predecessors($modinfo);
+        return array_map(
+            function ($cm) use ($predecessors) {
+                return [
+                    'id' => $cm->id,
+                    'name' => $cm->get_name(),
+                    'depend' => $cm->availability,
+                    'predecessor' => $predecessors[$cm->id]
+                ];
+            }, $modinfo->cms);
+    }
 
+    /**
+     * Compute the previous activity with completion 
+     * for every activity in the course.
+     * @return associative array assigning to each cmid the
+     * cmid of its predecessor with completion.
+     * The first activity has an invalid predecessor with id 0.
+     */
+    private static function compute_predecessors($modinfo): array {
+        $predecessors = [];
+        $lastcmid = 0;
         foreach ($modinfo->cms as $cm) {
-            $module = [];
-            $module['id'] = $cm->id;
-            $module['name'] = $cm->get_name();
-            $module['dep'] = $cm->availability;
-            array_push($modules, $module);
+            if ($cm->deletioninprogress) {
+                continue;
+            }
+            $predecessors[$cm->id] = $lastcmid;
+            if ($cm->completion != COMPLETION_TRACKING_NONE) {
+                $lastcmid = $cm->id;
+            }
         }
-
-        return $modules;
+        return $predecessors;
     }
 
     /**
@@ -78,7 +100,8 @@ class fetch_course_data extends external_api  {
         return new external_multiple_structure(new external_single_structure([
             'id' => new external_value(PARAM_INT, 'course module id'),
             'name' => new external_value(PARAM_TEXT, 'module name', VALUE_OPTIONAL),
-            'dep' => new external_value(PARAM_TEXT, 'availability conditions as json string', VALUE_OPTIONAL)
+            'depend' => new external_value(PARAM_TEXT, 'availability conditions as json string', VALUE_OPTIONAL),
+            'predecessor' => new external_value(PARAM_INT, 'previous course module with completion')
         ]));
     }
 }
