@@ -29,3 +29,4 @@ $string['open_full_graph'] = 'Show full graph';
 $string['heading_simplified'] = 'Simplified graph of availability dependencies between activities';
 $string['heading_full'] = 'Full graph of availability dependencies between activities';
 $string['toggle_full_simplified'] = 'Toggle view';
+$string['privacy:metadata'] = 'The block availability dependencies does not store any personal data.';
