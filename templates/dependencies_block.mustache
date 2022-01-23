@@ -34,14 +34,11 @@
 }}
 
 <div class="block_availability_dependencies_dependencies_block">
-  <svg class="availability_dependencies block">
-    <g transform="scale(1)">
-    <g>
-  </svg>
-  <a href="{{viewpageurl}}" class="btn btn-primary" data-action="new-request">
-            {{#str}}open_page, block_availability_dependencies{{/str}}
+  <a href="{{simplifiedgraphurl}}" class="btn btn-primary" data-action="new-request">
+            {{#str}}open_simplified_graph, block_availability_dependencies{{/str}}
+  </a>
+  <a href="{{fullgraphurl}}" class="btn btn-primary" data-action="new-request">
+            {{#str}}open_full_graph, block_availability_dependencies{{/str}}
   </a>
 </div>
 
-<!-- load d3 -->
-<script src="{{d3src}}"></script>

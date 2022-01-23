@@ -24,4 +24,8 @@
  */
 
 $string['pluginname'] = 'Availability dependencies';
-$string['open_page'] = 'Show in a new page';
+$string['open_simplified_graph'] = 'Show simplified graph';
+$string['open_full_graph'] = 'Show full graph';
+$string['heading_simplified'] = 'Simplified graph of availability dependencies between activities';
+$string['heading_full'] = 'Full graph of availability dependencies between activities';
+$string['toggle_full_simplified'] = 'Toggle view';

@@ -27,17 +27,20 @@
 require_once(__DIR__ . '/../../config.php');
 
 $courseid  = required_param('courseid', PARAM_INT);
+$full = required_param('full', PARAM_TEXT);
 $context = context_course::instance($courseid, MUST_EXIST);
 
 $PAGE->set_course($COURSE);
-$PAGE->set_url(new moodle_url('/block/availability_dependencies/view.php', ['courseid' => $courseid]));
+$PAGE->set_url(new moodle_url('/block/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => $full]));
 
 require_login($courseid);
 
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('base');
 $PAGE->set_title(get_string('pluginname', 'block_availability_dependencies'));
-$PAGE->set_heading('Display completion -> availability dependencies for course '
-    . get_fast_modinfo($courseid)->get_course()->fullname);
+$PAGE->set_heading($full == 'no' ?
+    get_string('heading_simplified', 'block_availability_dependencies') :
+    get_string('heading_full', 'block_availability_dependencies')
+);
 $PAGE->navbar->add(get_string('pluginname', 'block_availability_dependencies'));
 
 $PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
