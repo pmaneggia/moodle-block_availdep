@@ -65,7 +65,7 @@ function setupSvg(dimensions) {
     addMarker();
 }
 
-function addMarker() { // TODO differentiate between simplifies and full
+function addMarker() { // TODO differentiate between simplified and full
     d3.select('svg.availability_dependencies').select('g').append('defs').append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
@@ -89,19 +89,11 @@ function determineSvgSize() {
 
 /**
  * Generate a simulation, using the nodes and edges (links)
- * extracted from json string representing the dependencies between course modules.
+ * extracted from the dependencies between course modules.
  * The nodes are indexed by the course module id.
  * @param {json} dependencies
  * @returns d3 simulation object
  */
-function generateSimulation(dependencies) {
-    return d3.forceSimulation(dependencies)
-        .force('x0', d3.forceX())
-        .force('y0', d3.forceY())
-        .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
-}
-
 function generateSimplifiedSimulation(dependencies, dimensions) {
     return d3.forceSimulation(dependencies)
         .force('x0', d3.forceX())
@@ -110,12 +102,20 @@ function generateSimplifiedSimulation(dependencies, dimensions) {
         .force('link', d3.forceLink(computeEdgesSimplifiedDependencies(dependencies)).distance(80).id(d => d.id));
 }
 
+/**
+ * Generate a simulation, using the nodes and edges (links)
+ * extracted from the dependencies between course modules.
+ * The activity nodes are indexed by the course module id,
+ * the operator nodes are indexed by a generated unique id.
+ * @param {json} dependencies
+ * @returns d3 simulation object
+ */
 function generateFullSimulation(dependencies) {
-    return d3.forceSimulation(dependencies)
+    return d3.forceSimulation(computeEdgesAndNodesFullDependencies(dependencies).nodes)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdgesFullDependencies(dependencies)).distance(80).id(d => d.id));
+        .force('link', d3.forceLink(computeEdgesAndNodesFullDependencies(dependencies).edges).distance(80).id(d => d.id));
 }
 
 /**
@@ -143,53 +143,70 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * nesting and for each operator. For each completion of an activity there is a flag 'e' which
  * can have value 0, 1, 2 or 3 meaning. Add a done with that flag between the activity and the next
  * node.
+ * For a full representation we need nodes for the operators besides the nodes
+ * representing the activities. For each node we use a field id and a field name.
+ * An activity node has as id its course module id and as name its name.
+ * An operator node has as id the number obtained concatenating the ids of the source and target
  * @param {} dependencies 
  */
- function computeEdgesFullDependencies(dependencies) { //TODO implement - for the moment is a copy of simplified
-    // for an array of nested dependencies
-    // extract all the cm.id of leaves of type 'completion'
-    let leaves = (depend =>
-        depend.c.flatMap(d => d.op ? leaves(d) : (d.type === 'completion' ? d.cm : [])));
-    return dependencies
-        .filter(({id, name, depend, predecessor}) => (depend !== null))
-        .map(({id, name, depend, predecessor}) => 
-            leaves(depend).map(cm => {return {
-                target: id,
-                source: cm === -1 ? predecessor : cm,
-                name: name
-            }}))
-        .flat();
-}
+ function computeEdgesAndNodesFullDependencies(dependencies) {
+    let uid = 0;
 
-/**
- * Compute the edges (links) for d3-force
- * as an array of objects {source: cm_id, target: cm_id}.
- * 1) filter out all elements with no dependencies;
- * 2) filter out all dependencies that are not type: completion
- * 3) for each remaining produce an edge with source and target, collecting also the operator.
- * If the type of availability was based on the completion of the previous activity with completion
- * update the value of the cm with the correct id instead of -1.
- * 4) the operator is changed to 'negLit' if the literal is negated i.e. depend.c.e is 0 (activity must not be completed) 
- */ 
-function computeEdges(dependencies) {
-    return dependencies.filter(({id, name, depend, predecessor}) => (depend !== null))
-        .flatMap(({id, name, depend, predecessor}) => {
-            return depend.c.filter(x => x.type == 'completion')
-                .map(x => {return {
-                    target: id, 
-                    source: x.cm == -1 ? predecessor : x.cm, 
-                    op: x.e ? depend.op : 'negLit'
-                }})
+    function getNextUID() {
+        return 'uid_' + uid++;
+    }
+
+    function extractActivityNodes(dependencies) {
+        return dependencies.map(d => {
+            return {
+                id: d.id,
+                name: d.name,
+                genus: 'activity'
+            }
         });
-}
+    }
 
-/**
- * Use d3 to display nodes and edges (links).
- * @param simulation
- */
-function displayGraph(simulation) {
-    displayEdges(simulation.force('link').links());
-    displayNodesAndLabels(simulation.nodes());
+    let edges = [];
+    let nodes = extractActivityNodes(dependencies);
+
+    // id is the id field of the target node, of genus 'operator' after the first call.
+    // dependList the list of dependencies that have the above node as target
+    // predecessor is the cmid of the activity node for which we are extracting the informations,
+    // to be used if in the nesting of dependencies there will be one with {type: 'completion', cm:-1}
+    function extractEdgesAndNodes(id, dependList, predecessor) {
+        dependList.forEach(el => {
+            if (el.op) {
+                // generate node
+                let newNode = {
+                    id: getNextUID(),
+                    name: el.op,
+                    genus: 'operator'
+                };
+                nodes.push(newNode);
+                // generate edge
+                let newEdge = {
+                    target: id,
+                    source: newNode.id
+                };
+                edges.push(newEdge);
+                //recursive call
+                extractEdgesAndNodes(newNode.id, el.c, predecessor);
+            } else if (el.type === 'completion') {
+                // generate edge
+                let newEdge = {
+                    target: id,
+                    source: el.cm === -1 ? predecessor : el.cm
+                };
+                edges.push(newEdge);
+            } else {
+                // make edge to node of other dependencies
+            }
+        })
+    }
+
+    dependencies.forEach(a => {if(a.depend !== null) extractEdgesAndNodes(a.id, [a.depend], a.predecessor)});
+
+    return {edges, nodes};
 }
 
 /**
@@ -212,24 +229,6 @@ function displayGraph(simulation) {
 
 /**
  * Add the graphical elements to display the edges.
- * The stroke-dasharray distingushes between the operator:
- * '&' (solid) - '|' dotted and all other cases dashdotted.
- * @param s_edges Edges (links) in the d3 simulation.
- */
-function displayEdges(s_edges) {
-    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
-        .enter().append('line')
-        .attr('stroke', 'lightgray')
-        .attr('stroke-width', '2px')
-        .attr("stroke-linecap", "round")
-        .attr('stroke-dasharray', x => (x.op == '&' ? '0 0' : (x.op == '|' ? '1 4' : '9 4 1 4')))
-        .attr('marker-end', 'url(#arrow)');
-}
-
-/**
- * Add the graphical elements to display the edges.
- * The stroke-dasharray distingushes between the operator:
- * '&' (solid) - '|' dotted and all other cases dashdotted.
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displaySimplifiedEdges(s_edges) {
@@ -243,8 +242,6 @@ function displayEdges(s_edges) {
 
 /**
  * Add the graphical elements to display the edges.
- * The stroke-dasharray distingushes between the operator:
- * '&' (solid) - '|' dotted and all other cases dashdotted.
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displayFullEdges(s_edges) {
@@ -254,28 +251,6 @@ function displayEdges(s_edges) {
         .attr('stroke-width', '2px')
         .attr("stroke-linecap", "round")
         .attr('marker-end', 'url(#arrow)');
-}
-
-/**
- * Add the graphical elements to display the nodes and labels.
- * @param s_nodes Nodes in the d3 simulation.
- */
-function displayNodesAndLabels(s_nodes) {
-    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
-        .join('circle')
-        .attr('fill', '#00a8d5')
-        .attr('stroke', 'white')
-        .attr('r', 5);
-    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
-        .join('text')
-        .attr('fill', 'darkgray')
-        .attr('font-family', 'sans-serif')
-        .attr('font-weight', 'bold')
-        .attr('font-size', 'small')
-      .clone().lower()
-        .attr('stroke', 'white')
-        .attr('stroke-width', 4)
-        .attr('stroke-opacity', 0.5);
 }
 
 /**
@@ -308,8 +283,9 @@ function displayNodesAndLabels(s_nodes) {
     d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', '#00a8d5')
+        .attr('fill-opacity', 0.5)
         .attr('stroke', 'white')
-        .attr('r', 30);
+        .attr('r', 20);
     d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', 'darkgray')
