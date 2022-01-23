@@ -24,10 +24,13 @@
 
 import Ajax from 'core/ajax';
 
-export const init = (params) => {
+const full = 'no';
+
+export const init = (courseid, full) => {
+    full = full;
     var promises = Ajax.call([{
         methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
-        args: {courseid: params}
+        args: {courseid: courseid}
     }
 ]);
 
@@ -36,8 +39,14 @@ promises[0].fail(ex => console.log(ex))
         let dimensions = determineSvgSize();
         setupSvg(dimensions);
         dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
-        let simulation = generateSimplifiedSimulation(dependencies);
-        displaySimplifiedGraph(simulation);
+        let simulation;
+        if (full === 'no') {
+            simulation = generateSimplifiedSimulation(dependencies, dimensions);
+            displaySimplifiedGraph(simulation);
+        } else {
+            simulation = generateFullSimulation(dependencies);
+            displayFullGraph(simulation);
+        }
         rememberD3Selections();
         simulation.on('tick', tick);
         makeDraggable(simulation);
@@ -56,7 +65,7 @@ function setupSvg(dimensions) {
     addMarker();
 }
 
-function addMarker() {
+function addMarker() { // TODO differentiate between simplifies and full
     d3.select('svg.availability_dependencies').select('g').append('defs').append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
@@ -93,19 +102,50 @@ function generateSimulation(dependencies) {
         .force('link', d3.forceLink(computeEdges(dependencies)).distance(80).id(d => d.id));
 }
 
-function generateSimplifiedSimulation(dependencies) {
+function generateSimplifiedSimulation(dependencies, dimensions) {
     return d3.forceSimulation(dependencies)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(simplifyDependencies(dependencies)).distance(80).id(d => d.id));
+        .force('link', d3.forceLink(computeEdgesSimplifiedDependencies(dependencies)).distance(80).id(d => d.id));
+}
+
+function generateFullSimulation(dependencies) {
+    return d3.forceSimulation(dependencies)
+        .force('x0', d3.forceX())
+        .force('y0', d3.forceY())
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('link', d3.forceLink(computeEdgesFullDependencies(dependencies)).distance(80).id(d => d.id));
 }
 
 /**
  * For a simplified representation, flatten any nesting.
  * @param {} dependencies 
  */
-function simplifyDependencies(dependencies) {
+function computeEdgesSimplifiedDependencies(dependencies) {
+    // for an array of nested dependencies
+    // extract all the cm.id of leaves of type 'completion'
+    let leaves = (depend =>
+        depend.c.flatMap(d => d.op ? leaves(d) : (d.type === 'completion' ? d.cm : [])));
+    return dependencies
+        .filter(({id, name, depend, predecessor}) => (depend !== null))
+        .map(({id, name, depend, predecessor}) => 
+            leaves(depend).map(cm => {return {
+                target: id,
+                source: cm === -1 ? predecessor : cm,
+                name: name
+            }}))
+        .flat();
+}
+
+/**
+ * For a full representation, generate a node for each leaf (condition without any further
+ * nesting and for each operator. For each completion of an activity there is a flag 'e' which
+ * can have value 0, 1, 2 or 3 meaning. Add a done with that flag between the activity and the next
+ * node.
+ * @param {} dependencies 
+ */
+ function computeEdgesFullDependencies(dependencies) { //TODO implement - for the moment is a copy of simplified
     // for an array of nested dependencies
     // extract all the cm.id of leaves of type 'completion'
     let leaves = (depend =>
@@ -162,6 +202,15 @@ function displayGraph(simulation) {
 }
 
 /**
+ * Use d3 to display nodes and edges (links).
+ * @param simulation
+ */
+ function displayFullGraph(simulation) {
+    displayFullEdges(simulation.force('link').links());
+    displayFullNodesAndLabels(simulation.nodes());
+}
+
+/**
  * Add the graphical elements to display the edges.
  * The stroke-dasharray distingushes between the operator:
  * '&' (solid) - '|' dotted and all other cases dashdotted.
@@ -184,6 +233,21 @@ function displayEdges(s_edges) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displaySimplifiedEdges(s_edges) {
+    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
+        .enter().append('line')
+        .attr('stroke', 'lightgray')
+        .attr('stroke-width', '2px')
+        .attr("stroke-linecap", "round")
+        .attr('marker-end', 'url(#arrow)');
+}
+
+/**
+ * Add the graphical elements to display the edges.
+ * The stroke-dasharray distingushes between the operator:
+ * '&' (solid) - '|' dotted and all other cases dashdotted.
+ * @param s_edges Edges (links) in the d3 simulation.
+ */
+ function displayFullEdges(s_edges) {
     d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', 'lightgray')
@@ -224,6 +288,28 @@ function displayNodesAndLabels(s_nodes) {
         .attr('fill', '#00a8d5')
         .attr('stroke', 'white')
         .attr('r', 5);
+    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
+        .join('text')
+        .attr('fill', 'darkgray')
+        .attr('font-family', 'sans-serif')
+        .attr('font-weight', 'bold')
+        .attr('font-size', 'small')
+      .clone().lower()
+        .attr('stroke', 'white')
+        .attr('stroke-width', 4)
+        .attr('stroke-opacity', 0.5);
+}
+
+/**
+ * Add the graphical elements to display the nodes and labels.
+ * @param s_nodes Nodes in the d3 simulation.
+ */
+ function displayFullNodesAndLabels(s_nodes) {
+    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
+        .join('circle')
+        .attr('fill', '#00a8d5')
+        .attr('stroke', 'white')
+        .attr('r', 30);
     d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', 'darkgray')

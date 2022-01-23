@@ -24,11 +24,20 @@
  */
 namespace block_availability_dependencies\output;
 
+use moodle_url;
 use renderable;
 use renderer_base;
 use templatable;
 use stdClass;
 class view_page implements renderable, templatable {
+
+    private $courseid;
+    private $full;
+
+    public function __construct(int $courseid, string $full) {
+        $this->courseid = $courseid;
+        $this->full = $full;
+    }
 
     /**
      * Export this data so it can be used as the context for a mustache template.
@@ -36,6 +45,7 @@ class view_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
+        $data->toggleurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
         $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
         return $data;
     }

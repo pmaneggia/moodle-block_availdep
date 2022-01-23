@@ -43,10 +43,10 @@ $PAGE->set_heading($full == 'no' ?
 );
 $PAGE->navbar->add(get_string('pluginname', 'block_availability_dependencies'));
 
-$PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid));
+$PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid, $full));
 
 echo $OUTPUT->header();
-$renderable = new block_availability_dependencies\output\view_page();
+$renderable = new block_availability_dependencies\output\view_page($courseid, $full);
 $renderer = $PAGE->get_renderer('block_availability_dependencies');
 echo $renderer->render($renderable);
 echo $OUTPUT->footer();
