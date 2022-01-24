@@ -53,12 +53,12 @@ promises[0].fail(ex => console.log(ex))
     });
 };
 
-let nodeColour = '#9BD1E5'; //'#C3E19F';
-let textColour = '#364958'; //'#4E5166';
-let arrowColour = '#516E84'; //'#989FB0';
-let andColour = '#FFB400'; //'#FFB273';
-let orColour = '#CEFF1A'; //'#70E1CA';
-let otherOperatorColour = '#D1FAFF'; //'#FACED6';
+let nodeColour = '#9BD1E5';
+let textColour = '#364958';
+let arrowColour = '#516E84';
+let andColour = '#FFB400';
+let orColour = '#CEFF1A';
+let otherOperatorColour = '#D1FAFF';
 
 let fullNodeRadius = 50;
 let operatorRadius = 20;
@@ -186,14 +186,17 @@ function computeEdgesSimplifiedDependencies(dependencies) {
 }
 
 /**
- * For a full representation, generate a node for each leaf (condition without any further
- * nesting and for each operator. For each completion of an activity there is a flag 'e' which
- * can have value 0, 1, 2 or 3 meaning. Add a done with that flag between the activity and the next
- * node.
  * For a full representation we need nodes for the operators besides the nodes
- * representing the activities. For each node we use a field id and a field name.
+ * representing the activities. For each node we use fields id, name, genus (activity or operator),
+ * isSource and isTarget (the last two are for the layout - sort of extenden fuzzy logic,
+ * they are a quantity instead of a boolean).
  * An activity node has as id its course module id and as name its name.
- * An operator node has as id the number obtained concatenating the ids of the source and target
+ * An operator node has as id the a uniquely generated id.
+ * 
+ * For each completion of an activity there is a flag 'e' which
+ * can have value 0, 1, 2 or 3 (meaning: activity (0) should not be completed; (1) must be completed;
+ * (2) must be completed an passed; (3) must be completed and failed).
+ * TODO Add a node with that flag between the activity and the previous node.
  * @param {} dependencies 
  */
  function computeEdgesAndNodesFullDependencies(dependencies) {
@@ -224,7 +227,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
     // predecessor is the cmid of the activity node for which we are extracting the informations,
     // to be used if in the nesting of dependencies there will be one with {type: 'completion', cm:-1}
     // An edge has the same genus as its target.
-    function extractEdgesAndNodes(id, genus, dependList, predecessor) {
+    function extractEdgesAndNodes(id, toGenus, dependList, predecessor) {
         dependList.forEach(el => {
             if (el.op) {
                 // generate node
@@ -240,7 +243,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 let newEdge = {
                     target: id,
                     source: newNode.id,
-                    genus: genus
+                    toGenus: toGenus
                 };
                 edges.push(newEdge);
                 //recursive call
@@ -250,9 +253,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 let newEdge = {
                     target: id,
                     source: el.cm === -1 ? predecessor : el.cm,
-                    genus: genus
+                    toGenus: toGenus
                 };
-                // increase isSource of the source node a bit
+                // increase isSource of the source node
                 nodes.find(n => n.id === newEdge.source).isSource += 0.2;
                 edges.push(newEdge);
             } else {
@@ -313,7 +316,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         .attr('stroke-opacity', 0.7)
         .attr('stroke-width', '4px')
         .attr("stroke-linecap", "round")
-        .attr('marker-end', e => e.genus === 'activity' ?
+        .attr('marker-end', e => e.toGenus === 'activity' ?
             'url(#arrowToActivity' :
             'url(#arrowToOperator');
 }
