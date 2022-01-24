@@ -39,6 +39,7 @@ promises[0].fail(ex => console.log(ex))
         let dimensions = determineSvgSize();
         setupSvg(dimensions);
         dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
+        window.dependencies = dependencies;
         let simulation;
         if (full === 'no') {
             simulation = generateSimplifiedSimulation(dependencies, dimensions);
@@ -47,6 +48,9 @@ promises[0].fail(ex => console.log(ex))
             simulation = generateFullSimulation(dependencies);
             displayFullGraph(simulation);
         }
+        window.simulation = simulation;
+        window.nodes = simulation.nodes;
+        window.edges = simulation.links;
         rememberD3Selections();
         simulation.on('tick', tick);
         makeDraggable(simulation);
@@ -229,7 +233,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
     // An edge has the same genus as its target.
     function extractEdgesAndNodes(id, toGenus, dependList, predecessor) {
         dependList.forEach(el => {
-            if (el.op) {
+            if (!el.type && el.op) {
                 // generate node
                 let newNode = {
                     id: getNextUID(),
