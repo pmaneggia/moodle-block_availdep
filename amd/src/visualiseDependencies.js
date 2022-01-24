@@ -53,6 +53,16 @@ promises[0].fail(ex => console.log(ex))
     });
 };
 
+let nodeColour = '#9BD1E5'; //'#C3E19F';
+let textColour = '#364958'; //'#4E5166';
+let arrowColour = '#516E84'; //'#989FB0';
+let andColour = '#FFB400'; //'#FFB273';
+let orColour = '#CEFF1A'; //'#70E1CA';
+let otherOperatorColour = '#D1FAFF'; //'#FACED6';
+
+let fullNodeRadius = 50;
+let operatorRadius = 20;
+
 /**
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
@@ -66,17 +76,44 @@ function setupSvg(dimensions) {
 }
 
 function addMarker() { // TODO differentiate between simplified and full
-    d3.select('svg.availability_dependencies').select('g').append('defs').append('marker')
+    let dev = d3.select('svg.availability_dependencies').append('defs');
+    dev.append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
-      .attr('refX', 13.5)
+      .attr('refX', 15)
       .attr('refY', 5)
       .attr('markerUnits', 'strokeWidth')
       .attr('markerWidth', 6)
       .attr('markerHeight', 8)
       .attr('orient', 'auto')
     .append('path')
-      .attr('fill', 'lightgray')
+      .attr('fill', arrowColour)
+      .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+    
+    dev.append('marker')
+      .attr('id', 'arrowToActivity')
+      .attr('viewBox', "0 0 10 10")
+      .attr('refX', 30)
+      .attr('refY', 5)
+      .attr('markerUnits', 'strokeWidth')
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 8)
+      .attr('orient', 'auto')
+    .append('path')
+      .attr('fill', arrowColour)
+      .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+
+    dev.append('marker')
+      .attr('id', 'arrowToOperator')
+      .attr('viewBox', "0 0 10 10")
+      .attr('refX', 18)
+      .attr('refY', 5)
+      .attr('markerUnits', 'strokeWidth')
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 8)
+      .attr('orient', 'auto')
+    .append('path')
+      .attr('fill', arrowColour)
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 }
 
@@ -98,8 +135,9 @@ function generateSimplifiedSimulation(dependencies, dimensions) {
     return d3.forceSimulation(dependencies)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
+        .force('collide', d3.forceCollide().radius(20))
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdgesSimplifiedDependencies(dependencies)).distance(80).id(d => d.id));
+        .force('link', d3.forceLink(computeEdgesSimplifiedDependencies(dependencies)).distance(200).id(d => d.id));
 }
 
 /**
@@ -114,8 +152,9 @@ function generateFullSimulation(dependencies) {
     return d3.forceSimulation(computeEdgesAndNodesFullDependencies(dependencies).nodes)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
+        .force('collide', d3.forceCollide().radius(fullNodeRadius + 40))
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdgesAndNodesFullDependencies(dependencies).edges).distance(80).id(d => d.id));
+        .force('link', d3.forceLink(computeEdgesAndNodesFullDependencies(dependencies).edges).distance(100).id(d => d.id));
 }
 
 /**
@@ -170,10 +209,12 @@ function computeEdgesSimplifiedDependencies(dependencies) {
     let nodes = extractActivityNodes(dependencies);
 
     // id is the id field of the target node, of genus 'operator' after the first call.
+    // genus of the target node ('activity' or 'operator')
     // dependList the list of dependencies that have the above node as target
     // predecessor is the cmid of the activity node for which we are extracting the informations,
     // to be used if in the nesting of dependencies there will be one with {type: 'completion', cm:-1}
-    function extractEdgesAndNodes(id, dependList, predecessor) {
+    // An edge has the same genus as its target.
+    function extractEdgesAndNodes(id, genus, dependList, predecessor) {
         dependList.forEach(el => {
             if (el.op) {
                 // generate node
@@ -186,16 +227,18 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 // generate edge
                 let newEdge = {
                     target: id,
-                    source: newNode.id
+                    source: newNode.id,
+                    genus: genus
                 };
                 edges.push(newEdge);
                 //recursive call
-                extractEdgesAndNodes(newNode.id, el.c, predecessor);
+                extractEdgesAndNodes(newNode.id, 'operator', el.c, predecessor);
             } else if (el.type === 'completion') {
                 // generate edge
                 let newEdge = {
                     target: id,
-                    source: el.cm === -1 ? predecessor : el.cm
+                    source: el.cm === -1 ? predecessor : el.cm,
+                    genus: genus
                 };
                 edges.push(newEdge);
             } else {
@@ -204,7 +247,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         })
     }
 
-    dependencies.forEach(a => {if(a.depend !== null) extractEdgesAndNodes(a.id, [a.depend], a.predecessor)});
+    dependencies.forEach(a => {if(a.depend !== null) extractEdgesAndNodes(a.id, 'activity', [a.depend], a.predecessor)});
 
     return {edges, nodes};
 }
@@ -232,10 +275,10 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displaySimplifiedEdges(s_edges) {
-    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
+    d3.select('svg').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
-        .attr('stroke', 'lightgray')
-        .attr('stroke-width', '2px')
+        .attr('stroke', arrowColour)
+        .attr('stroke-width', '3px')
         .attr("stroke-linecap", "round")
         .attr('marker-end', 'url(#arrow)');
 }
@@ -245,12 +288,15 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displayFullEdges(s_edges) {
-    d3.select('svg').select('g').append('g').selectAll('line').data(s_edges)
+    d3.select('svg').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
-        .attr('stroke', 'lightgray')
-        .attr('stroke-width', '2px')
+        .attr('stroke', textColour)
+        .attr('stroke-opacity', 0.7)
+        .attr('stroke-width', '4px')
         .attr("stroke-linecap", "round")
-        .attr('marker-end', 'url(#arrow)');
+        .attr('marker-end', e => e.genus === 'activity' ?
+            'url(#arrowToActivity' :
+            'url(#arrowToOperator');
 }
 
 /**
@@ -258,17 +304,16 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displaySimplifiedNodesAndLabels(s_nodes) {
-    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
+    d3.select('svg').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
-        .attr('fill', '#00a8d5')
+        .attr('fill', nodeColour)
         .attr('stroke', 'white')
-        .attr('r', 5);
-    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
+        .attr('r', 10);
+    d3.select('svg').append('g').selectAll('text').data(s_nodes)
         .join('text')
-        .attr('fill', 'darkgray')
+        .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
         .attr('font-weight', 'bold')
-        .attr('font-size', 'small')
       .clone().lower()
         .attr('stroke', 'white')
         .attr('stroke-width', 4)
@@ -280,22 +325,21 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displayFullNodesAndLabels(s_nodes) {
-    d3.select('svg').select('g').append('g').selectAll('circle').data(s_nodes)
+    d3.select('svg').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
-        .attr('fill', '#00a8d5')
-        .attr('fill-opacity', 0.5)
+        .attr('fill', n => n.genus === 'activity' ? nodeColour : n.name === '&' ? andColour : n.name === '|' ? orColour : otherOperatorColour)
         .attr('stroke', 'white')
-        .attr('r', 20);
-    d3.select('svg').select('g').append('g').selectAll('text').data(s_nodes)
+        .attr('stroke-width', 3)
+        .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
+    d3.select('svg').append('g').selectAll('text').data(s_nodes)
         .join('text')
-        .attr('fill', 'darkgray')
+        .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
         .attr('font-weight', 'bold')
-        .attr('font-size', 'small')
-      .clone().lower()
-        .attr('stroke', 'white')
-        .attr('stroke-width', 4)
-        .attr('stroke-opacity', 0.5);
+        .attr('text-anchor', 'middle')
+        .attr('dx', -5)
+        .attr('dominant-baseline', 'middle')
+        .attr('dy', 5);
 }
 
 let edges, nodes, labels;
@@ -304,9 +348,9 @@ let edges, nodes, labels;
  * Save the graphical representation of edges, nodes and labals.
  */
 function rememberD3Selections() {
-    edges = d3.select('svg g').selectAll('line');
-    nodes = d3.select('svg g').selectAll('circle');
-    labels = d3.select('svg g').selectAll('text');
+    edges = d3.select('svg').selectAll('line');
+    nodes = d3.select('svg').selectAll('circle');
+    labels = d3.select('svg').selectAll('text');
 }
 
 /**
