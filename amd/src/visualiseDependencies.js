@@ -63,6 +63,9 @@ let otherOperatorColour = '#D1FAFF'; //'#FACED6';
 let fullNodeRadius = 50;
 let operatorRadius = 20;
 
+let svgWidth;
+let svgHeight;
+
 /**
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
@@ -75,7 +78,7 @@ function setupSvg(dimensions) {
     addMarker();
 }
 
-function addMarker() { // TODO differentiate between simplified and full
+function addMarker() {
     let dev = d3.select('svg.availability_dependencies').append('defs');
     dev.append('marker')
       .attr('id', 'arrow')
@@ -121,6 +124,8 @@ function determineSvgSize() {
     let svg = document.querySelector('svg.availability_dependencies');
     let width = svg.parentNode.clientWidth;
     let height = width * 0.6;
+    svgWidth = width;
+    svgHeight = height;
     return {width, height};
 }
 
@@ -145,16 +150,19 @@ function generateSimplifiedSimulation(dependencies, dimensions) {
  * extracted from the dependencies between course modules.
  * The activity nodes are indexed by the course module id,
  * the operator nodes are indexed by a generated unique id.
- * @param {json} dependencies
+ * @param dependencies Array of objects with fields {id, name, depend, predecessor}
  * @returns d3 simulation object
  */
 function generateFullSimulation(dependencies) {
-    return d3.forceSimulation(computeEdgesAndNodesFullDependencies(dependencies).nodes)
+    let {edges, nodes} = computeEdgesAndNodesFullDependencies(dependencies);
+    return d3.forceSimulation(nodes)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
-        .force('collide', d3.forceCollide().radius(fullNodeRadius + 40))
+        .force('isSource', d3.forceX(-svgWidth/3).strength(n => n.isSource))
+        .force('isTarget', d3.forceX(svgWidth/3).strength(n => n.isTarget))
+        .force('collide', d3.forceCollide(100).radius(n => (n.genus === 'activity' ? fullNodeRadius : operatorRadius) + 30))
         .force('charge', d3.forceManyBody().strength(-300))
-        .force('link', d3.forceLink(computeEdgesAndNodesFullDependencies(dependencies).edges).distance(100).id(d => d.id));
+        .force('link', d3.forceLink(edges).distance(50).id(d => d.id));
 }
 
 /**
@@ -200,7 +208,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
             return {
                 id: d.id,
                 name: d.name,
-                genus: 'activity'
+                genus: 'activity',
+                isSource: 0,
+                isTarget: 0
             }
         });
     }
@@ -221,7 +231,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 let newNode = {
                     id: getNextUID(),
                     name: el.op,
-                    genus: 'operator'
+                    genus: 'operator',
+                    isTarget: 0.1,
+                    isSource: 0.1
                 };
                 nodes.push(newNode);
                 // generate edge
@@ -240,6 +252,8 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                     source: el.cm === -1 ? predecessor : el.cm,
                     genus: genus
                 };
+                // increase isSource of the source node a bit
+                nodes.find(n => n.id === newEdge.source).isSource += 0.2;
                 edges.push(newEdge);
             } else {
                 // make edge to node of other dependencies
@@ -247,7 +261,12 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         })
     }
 
-    dependencies.forEach(a => {if(a.depend !== null) extractEdgesAndNodes(a.id, 'activity', [a.depend], a.predecessor)});
+    dependencies.forEach(a => {
+        if(a.depend !== null) {
+            nodes.find(n => n.id == a.id).isTarget = 0.9;
+            extractEdgesAndNodes(a.id, 'activity', [a.depend], a.predecessor)
+        }
+    });
 
     return {edges, nodes};
 }
