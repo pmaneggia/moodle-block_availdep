@@ -200,6 +200,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param {} dependencies 
  */
  function computeEdgesAndNodesFullDependencies(dependencies) {
+
     function onlyNonCompletionConditionsIn(dependList) {
         return dependList.filter(c => (c.type && c.type == 'completion' || (!c.type && c.op))).length === 0;
     }
@@ -226,9 +227,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
     let nodes = extractActivityNodes(dependencies);
 
     // id is the id field of the target node, of genus 'operator' after the first call.
-    // genus of the target node ('activity' or 'operator')
-    // dependList the list of dependencies that have the above node as target
-    // predecessor is the cmid of the activity node for which we are extracting the informations,
+    // toGenus: genus of the target node ('activity' or 'operator')
+    // dependList the list of dependencies that have the node with id id as target
+    // predecessor is the cmid of the activity node for which we are extracting the information,
     // to be used if in the nesting of dependencies there will be one with {type: 'completion', cm:-1}
     // An edge has the same genus as its target.
     function extractEdgesAndNodes(id, toGenus, dependList, predecessor) {
@@ -270,7 +271,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
 
     dependencies.forEach(a => {
         if(a.depend !== null) {
-            nodes.find(n => n.id == a.id).isTarget = 0.9;
+            // If an activity has some availability conditions, set the value for isTarget in its node.
+            // For the moment I am not checking if the conditions are of the wrong type
+            nodes.find(n => n.id === a.id).isTarget = 0.9;
             extractEdgesAndNodes(a.id, 'activity', [a.depend], a.predecessor)
         }
     });
