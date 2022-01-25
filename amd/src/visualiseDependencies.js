@@ -82,7 +82,7 @@ function setupSvg(dimensions) {
 }
 
 function addMarker() {
-    let dev = d3.select('svg.availability_dependencies').append('defs');
+    let dev = d3.select('g.availability_dependencies').append('defs');
     dev.append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
@@ -331,7 +331,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displaySimplifiedEdges(s_edges) {
-    d3.select('svg').append('g').selectAll('line').data(s_edges)
+    d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', arrowColour)
         .attr('stroke-width', '3px')
@@ -344,7 +344,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displayFullEdges(s_edges) {
-    d3.select('svg').append('g').selectAll('line').data(s_edges)
+    d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', textColour)
         .attr('stroke-opacity', 0.7)
@@ -360,12 +360,12 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displaySimplifiedNodesAndLabels(s_nodes) {
-    d3.select('svg').append('g').selectAll('circle').data(s_nodes)
+    d3.select('g.availability_dependencies').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', nodeColour)
         .attr('stroke', 'white')
         .attr('r', 10);
-    d3.select('svg').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availability_dependencies').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -381,7 +381,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displayFullNodesAndLabels(s_nodes) {
-    d3.select('svg').append('g').selectAll('circle').data(s_nodes)
+    d3.select('g.availability_dependencies').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', n => n.genus === 'activity' ? nodeColour
             : n.name === '&' ? andColour
@@ -392,7 +392,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         .attr('stroke', 'white')
         .attr('stroke-width', 3)
         .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
-    d3.select('svg').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availability_dependencies').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -409,9 +409,9 @@ let edges, nodes, labels;
  * Save the graphical representation of edges, nodes and labals.
  */
 function rememberD3Selections() {
-    edges = d3.select('svg').selectAll('line');
-    nodes = d3.select('svg').selectAll('circle');
-    labels = d3.select('svg').selectAll('text');
+    edges = d3.select('g.availability_dependencies').selectAll('line');
+    nodes = d3.select('g.availability_dependencies').selectAll('circle');
+    labels = d3.select('g.availability_dependencies').selectAll('text');
 }
 
 /**

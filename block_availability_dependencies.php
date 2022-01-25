@@ -51,7 +51,10 @@ class block_availability_dependencies extends block_base {
             return $this->content;
         }
 
+        $this->page->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid, 'yes'));
+
         $data = new stdClass();
+        $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
         $data->simplifiedgraphurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => 'no']))->out(false);
         $data->fullgraphurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => 'yes']))->out(false);
 

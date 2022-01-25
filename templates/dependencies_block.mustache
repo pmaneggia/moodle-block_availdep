@@ -34,6 +34,10 @@
 }}
 
 <div class="block_availability_dependencies_dependencies_block">
+  <svg class="availability_dependencies block">
+    <g class="availability_dependencies" transform="scale(0.3)">
+    </g>
+  </svg>
   <a href="{{simplifiedgraphurl}}" class="btn btn-primary" data-action="new-request">
             {{#str}}open_simplified_graph, block_availability_dependencies{{/str}}
   </a>
@@ -41,4 +45,7 @@
             {{#str}}open_full_graph, block_availability_dependencies{{/str}}
   </a>
 </div>
+
+<!-- load d3 -->
+<script src="{{d3src}}"></script>
 
