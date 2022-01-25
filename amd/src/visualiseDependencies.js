@@ -58,7 +58,10 @@ let textColour = '#364958';
 let arrowColour = '#516E84';
 let andColour = '#FFB400';
 let orColour = '#CEFF1A';
+let notAndColour = '#F9CFF2';
+let notOrColour = '#D1FAFF';
 let otherOperatorColour = '#D1FAFF';
+let notColour = '#E55934';
 
 let fullNodeRadius = 50;
 let operatorRadius = 20;
@@ -253,18 +256,42 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 edges.push(newEdge);
                 //recursive call
                 extractEdgesAndNodes(newNode.id, 'operator', el.c, predecessor);
-            } else if (el.type === 'completion') {
+            } else if (el.type === 'completion' && el.e > 0) {
                 // generate edge
                 let newEdge = {
                     target: id,
                     source: el.cm === -1 ? predecessor : el.cm,
                     toGenus: toGenus
                 };
-                // increase isSource of the source node
-                nodes.find(n => n.id === newEdge.source).isSource += 0.2;
+                // increase isSource of the source node to a max of 1.5
+                let sn = nodes.find(n => n.id === newEdge.source);
+                sn.isSource = (sn.isSource + 0.6 > 1.5 ? 1.5 : sn.isSource + 0.6);
                 edges.push(newEdge);
-            } else {
-                // make edge to node of other dependencies
+            } else if (el.type === 'completion' && el.e === 0){
+                // connect with two edges a 'not' node in between
+                let newNode = {
+                    id: getNextUID(),
+                    name: 'not',
+                    genus: 'operator',
+                    isTarget: 0.1,
+                    isSource: 0.1
+                };
+                let newEdgeFromNot = {
+                    target: id,
+                    source: newNode.id,
+                    toGenus: toGenus
+                };
+                let newEdgeToNot = {
+                    target: newNode.id,
+                    source: el.cm === -1 ? predecessor : el.cm,
+                    toGenus: 'operator'
+                }
+                nodes.push(newNode);
+                edges.push(newEdgeFromNot);
+                edges.push(newEdgeToNot);
+                // increase isSource of the source node to a max of 1.5
+                let sn = nodes.find(n => n.id === newEdgeToNot.source);
+                sn.isSource = (sn.isSource + 0.6 > 1.5 ? 1.5 : sn.isSource + 0.6);
             }
         })
     }
@@ -356,7 +383,12 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  function displayFullNodesAndLabels(s_nodes) {
     d3.select('svg').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
-        .attr('fill', n => n.genus === 'activity' ? nodeColour : n.name === '&' ? andColour : n.name === '|' ? orColour : otherOperatorColour)
+        .attr('fill', n => n.genus === 'activity' ? nodeColour
+            : n.name === '&' ? andColour
+            : n.name === '|' ? orColour
+            : n.name === '!&' ? notAndColour
+            : n.name === '!|' ? notOrColour
+            : n.name === 'not' ? notColour : otherOperatorColour)
         .attr('stroke', 'white')
         .attr('stroke-width', 3)
         .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
