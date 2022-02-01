@@ -81,6 +81,7 @@ function setupSvg(dimensions) {
         .attr('viewBox', -dimensions.width/2 + ' ' + -dimensions.height/2
             + ' ' + dimensions.width + ' ' + dimensions.height);
     addMarker();
+    addFilterDropShadow();
 }
 
 function addMarker() {
@@ -123,6 +124,22 @@ function addMarker() {
     .append('path')
       .attr('fill', arrowColour)
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
+}
+
+/*  <filter id="shadow2">
+      <feDropShadow dx="0" dy="0" stdDeviation="0.5"
+          flood-color="cyan"/>
+    </filter> */
+function addFilterDropShadow() {
+    let dev = d3.select('g.availability_dependencies defs');
+    dev.append('filter')
+      .attr('id', 'textShadow')
+    .append('feDropShadow')
+      .attr('dx', 0)
+      .attr('dy', 0)
+      .attr('stdDeviation', 2)
+      .attr('flood-color', 'white')
+      .attr('flood-opacity', 1)
 }
 
 function determineSvgSize() {
@@ -404,7 +421,8 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         .attr('text-anchor', 'middle')
         .attr('dx', -5)
         .attr('dominant-baseline', 'middle')
-        .attr('dy', 5);
+        .attr('dy', 5)
+        .attr('filter', 'url(#textShadow)');
 }
 
 let edges, nodes, labels;
