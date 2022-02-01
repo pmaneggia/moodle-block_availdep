@@ -53,7 +53,7 @@ promises[0].fail(ex => console.log(ex))
     });
 };
 
-let nodeColour = '#9BD1E5';
+let nodeColour = '#AEDAEA';
 let textColour = '#364958';
 let arrowColour = '#516E84';
 let andColour = '#FFB400';
@@ -61,10 +61,12 @@ let orColour = '#CEFF1A';
 let notAndColour = '#F9CFF2';
 let notOrColour = '#D1FAFF';
 let otherOperatorColour = '#D1FAFF';
-let notColour = '#E55934';
+let notColour = '#EA7B5D';
 
 let fullNodeRadius = 50;
 let operatorRadius = 20;
+
+let arrowWidth = 2;
 
 let svgWidth;
 let svgHeight;
@@ -86,7 +88,7 @@ function addMarker() {
     dev.append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
-      .attr('refX', 15)
+      .attr('refX', 23)
       .attr('refY', 5)
       .attr('markerUnits', 'strokeWidth')
       .attr('markerWidth', 6)
@@ -99,7 +101,7 @@ function addMarker() {
     dev.append('marker')
       .attr('id', 'arrowToActivity')
       .attr('viewBox', "0 0 10 10")
-      .attr('refX', 30)
+      .attr('refX', 52)
       .attr('refY', 5)
       .attr('markerUnits', 'strokeWidth')
       .attr('markerWidth', 6)
@@ -112,7 +114,7 @@ function addMarker() {
     dev.append('marker')
       .attr('id', 'arrowToOperator')
       .attr('viewBox', "0 0 10 10")
-      .attr('refX', 18)
+      .attr('refX', 27)
       .attr('refY', 5)
       .attr('markerUnits', 'strokeWidth')
       .attr('markerWidth', 6)
@@ -126,7 +128,8 @@ function addMarker() {
 function determineSvgSize() {
     let svg = document.querySelector('svg.availability_dependencies');
     let width = svg.parentNode.clientWidth;
-    let height = width * 0.6;
+    let orientation = screen.orientation?.type;
+    let height = orientation === "portrait-primary" ? width * 1.3 : width * 0.6;
     svgWidth = width;
     svgHeight = height;
     return {width, height};
@@ -334,7 +337,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
     d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', arrowColour)
-        .attr('stroke-width', '3px')
+        .attr('stroke-width', arrowWidth + 'px')
         .attr("stroke-linecap", "round")
         .attr('marker-end', 'url(#arrow)');
 }
@@ -348,7 +351,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         .enter().append('line')
         .attr('stroke', textColour)
         .attr('stroke-opacity', 0.7)
-        .attr('stroke-width', '4px')
+        .attr('stroke-width', arrowWidth + 'px')
         .attr("stroke-linecap", "round")
         .attr('marker-end', e => e.toGenus === 'activity' ?
             'url(#arrowToActivity' :
@@ -364,7 +367,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
         .join('circle')
         .attr('fill', nodeColour)
         .attr('stroke', 'white')
-        .attr('r', 10);
+        .attr('r', 16);
     d3.select('g.availability_dependencies').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', textColour)
@@ -388,7 +391,8 @@ function computeEdgesSimplifiedDependencies(dependencies) {
             : n.name === '|' ? orColour
             : n.name === '!&' ? notAndColour
             : n.name === '!|' ? notOrColour
-            : n.name === 'not' ? notColour : otherOperatorColour)
+            : n.name === 'not' ? notColour
+            : otherOperatorColour)
         .attr('stroke', 'white')
         .attr('stroke-width', 3)
         .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
