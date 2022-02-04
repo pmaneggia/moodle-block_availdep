@@ -40,18 +40,23 @@ promises[0].fail(ex => console.log(ex))
         setupSvg(dimensions);
         dependencies.forEach(d => {d.depend = JSON.parse(d.depend)});
         let simulation;
+        let hierarchies;
         if (full === 'no') {
-            simulation = generateSimplifiedSimulation(dependencies, dimensions);
+            simulation = generateSimplifiedSimulation(dependencies);
             displaySimplifiedGraph(simulation);
         } else {
             simulation = generateFullSimulation(dependencies);
             displayFullGraph(simulation);
         }
         rememberD3Selections();
+        storeAncestorEdgesAndNodesInAllNodes(edges);
         simulation.on('tick', tick);
         makeDraggable(simulation);
+        makeDoubleClickable(simulation);
     });
 };
+
+let toggleHighlight = 0;
 
 let nodeColour = '#AEDAEA';
 let textColour = '#364958';
@@ -126,10 +131,6 @@ function addMarker() {
       .attr('d', 'M 0 0 L 10 5 L 0 10 z');
 }
 
-/*  <filter id="shadow2">
-      <feDropShadow dx="0" dy="0" stdDeviation="0.5"
-          flood-color="cyan"/>
-    </filter> */
 function addFilterDropShadow() {
     let dev = d3.select('g.availability_dependencies defs');
     dev.append('filter')
@@ -159,7 +160,7 @@ function determineSvgSize() {
  * @param {json} dependencies
  * @returns d3 simulation object
  */
-function generateSimplifiedSimulation(dependencies, dimensions) {
+function generateSimplifiedSimulation(dependencies) {
     return d3.forceSimulation(dependencies)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
@@ -195,7 +196,7 @@ function generateFullSimulation(dependencies) {
 function computeEdgesSimplifiedDependencies(dependencies) {
     // for an array of nested dependencies
     // extract all the cm.id of leaves of type 'completion'
-    let leaves = (depend =>
+    let leaves = (depend => // TODO fix small bug here d.op && !d.type
         depend.c.flatMap(d => d.op ? leaves(d) : (d.type === 'completion' ? d.cm : [])));
     return dependencies
         .filter(({id, name, depend, predecessor}) => (depend !== null))
@@ -222,7 +223,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * TODO Add a node with that flag between the activity and the previous node.
  * @param {} dependencies 
  */
- function computeEdgesAndNodesFullDependencies(dependencies) {
+function computeEdgesAndNodesFullDependencies(dependencies) {
 
     function onlyNonCompletionConditionsIn(dependList) {
         return dependList.filter(c => (c.type && c.type == 'completion' || (!c.type && c.op))).length === 0;
@@ -241,7 +242,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
                 name: d.name,
                 genus: 'activity',
                 isSource: 0,
-                isTarget: 0
+                isTarget: 0,
             }
         });
     }
@@ -332,18 +333,9 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * Use d3 to display nodes and edges (links).
  * @param simulation
  */
- function displaySimplifiedGraph(simulation) {
+function displaySimplifiedGraph(simulation) {
     displaySimplifiedEdges(simulation.force('link').links());
     displaySimplifiedNodesAndLabels(simulation.nodes());
-}
-
-/**
- * Use d3 to display nodes and edges (links).
- * @param simulation
- */
- function displayFullGraph(simulation) {
-    displayFullEdges(simulation.force('link').links());
-    displayFullNodesAndLabels(simulation.nodes());
 }
 
 /**
@@ -360,10 +352,19 @@ function computeEdgesSimplifiedDependencies(dependencies) {
 }
 
 /**
+ * Use d3 to display nodes and edges (links).
+ * @param simulation
+ */
+ function displayFullGraph(simulation) {
+    displayFullEdges(simulation.force('link').links());
+    displayFullNodesAndLabels(simulation.nodes());
+}
+
+/**
  * Add the graphical elements to display the edges.
  * @param s_edges Edges (links) in the d3 simulation.
  */
- function displayFullEdges(s_edges) {
+function displayFullEdges(s_edges) {
     d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', textColour)
@@ -477,3 +478,75 @@ function makeDraggable(simulation) {
         );
 }
 
+function makeDoubleClickable(simulation) {
+    nodes.on('click', highlightDependencies);
+}
+
+/**
+ * Stores ancestors of each node as an additional property.
+ * We need this for the highlight function.
+ * @returns array of objects
+ */
+function storeAncestorEdgesAndNodesInAllNodes(allEdges) {
+    return nodes.data().forEach(n => computeAndStoreAncestorEdgesAndNodes(n, allEdges));
+}
+
+/**
+ * Compute the ancestor edges and nodes for a given node and stores then in an
+ * additional property 'ancestors' of the node.
+ * Even if it would be logically absurd to build a cycle in the directed graph of dependencies,
+ * there is no guarantee that this does not happen. Moreover a cycle per se does not mean that
+ * some activites are unreachable, since they can be negated.
+ * @param {*} node a d3 (circle) node from a selection 
+ */
+function computeAndStoreAncestorEdgesAndNodes(node, allEdges) {
+    let aNodes = new Set();
+    let aEdges = new Set();
+    let toBeExaminedNodes = [node];
+    while (toBeExaminedNodes.length) {
+        // each time one element of the queue of nodes to be examined is moved to the set aNodes
+        let currentNode = toBeExaminedNodes.shift();
+        aNodes.add(currentNode);
+        // iterate over the edges and look for the ones that have the current node as target
+        allEdges.data().forEach(ed => {
+            if (ed.target.id === currentNode.id) {
+                aEdges.add(ed);
+                if (!aNodes.has(ed.source)) {
+                    toBeExaminedNodes.push(ed.source);
+                }
+            }
+        })
+    } 
+    node.ancestors = [...aNodes].concat([...aEdges]);
+}
+
+/**
+ * Check if an edge is ancestor of node
+ * @param {*} edgeOrNode the edge or node to check
+ * @param {*} node
+ * @return the list of ancestor nodes
+ */
+function isAncestor(edgeOrNode, node) {
+    return node.ancestors.includes(edgeOrNode);
+}
+
+function highlightDependencies() {
+    if (toggleHighlight === 0) {
+        // Reduce the opacity of all but the ancestor nodes
+        let d = d3.select(this).data()[0];
+        nodes.style("opacity", function (o) {
+            return isAncestor(o, d) ? 1 : 0.1;
+        });
+        edges.style("opacity", function (o) {
+            return isAncestor(o, d) ? 1 : 0.1;
+        });
+        // mark hightlighting as on
+        toggleHighlight = 1;
+    } else {
+        // Put opacity back to 1 for all nodes and links
+        nodes.style("opacity", 1);
+        edges.style("opacity", 1);
+        // mark highlighting as off
+        toggleHighlight = 0;
+    }
+}
