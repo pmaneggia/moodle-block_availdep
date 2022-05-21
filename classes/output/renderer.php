@@ -17,13 +17,13 @@
 /**
  * Renderer for page view.php of block availability dependencies.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_availability_dependencies\output;
+namespace block_availdep\output;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -37,6 +37,6 @@ class renderer extends plugin_renderer_base {
      */
     public function render_view_page($viewpage) {
         $data = $viewpage->export_for_template($this);
-        return parent::render_from_template('block_availability_dependencies/dependencies_page', $data);
+        return parent::render_from_template('block_availdep/dependencies_page', $data);
     }
 }

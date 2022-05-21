@@ -17,12 +17,12 @@
 /**
  * Renderable for view.php page of block availability dependencies.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace block_availability_dependencies\output;
+namespace block_availdep\output;
 
 use moodle_url;
 use renderable;
@@ -45,8 +45,8 @@ class view_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->toggleurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
-        $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
+        $data->toggleurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
+        $data->d3src = '/blocks/availdep/thirdparty/d3.min.js';
         return $data;
     }
 }

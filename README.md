@@ -1,4 +1,4 @@
-# Block availability_dependencies
+# Block Availability Dependencies (`block_availdep`)
 
 Do you need to see a graphical summary of the dependencies between completion and availability of activities in your course? Just add this block to it!
 
@@ -26,7 +26,7 @@ __New: Highlight function__: clicking on an activity node highlights the depende
 There is a similar plugin in the Moodle plugin directory: [Activitymap](https://moodle.org/plugins/mod_activitymap "mod_activitymap, Moodle plugin directory"). This uses Graphviz to layout the directed graph and has some pros and cons in comparison. Maybe the biggest difference is that block activity_dependencies is of tyoe block instead of type activity and as such it is a much more lightweight plugin. It does not require any backup and restore routine and any database table.
 
 #### Installation
-1. Copy the content of this directory into the folder `blocks/availability_dependencies` inside your moodle installation.
+1. Copy the content of this directory into the folder `blocks/availdep` inside your moodle installation.
 1. Go to the _Site administration -> Notifications_ to start the install process.
 
 #### License

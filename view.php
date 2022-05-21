@@ -18,7 +18,7 @@
  * Block to display completion -> availability dependencies between
  * activities in a course.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,22 +31,22 @@ $full = required_param('full', PARAM_TEXT);
 $context = context_course::instance($courseid, MUST_EXIST);
 
 $PAGE->set_course($COURSE);
-$PAGE->set_url(new moodle_url('/block/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => $full]));
+$PAGE->set_url(new moodle_url('/block/availdep/view.php', ['courseid' => $courseid, 'full' => $full]));
 
 require_login($courseid);
 
 $PAGE->set_pagelayout('base');
-$PAGE->set_title(get_string('pluginname', 'block_availability_dependencies'));
+$PAGE->set_title(get_string('pluginname', 'block_availdep'));
 $PAGE->set_heading($full == 'no' ?
-    get_string('heading_simplified', 'block_availability_dependencies') :
-    get_string('heading_full', 'block_availability_dependencies')
+    get_string('heading_simplified', 'block_availdep') :
+    get_string('heading_full', 'block_availdep')
 );
-$PAGE->navbar->add(get_string('pluginname', 'block_availability_dependencies'));
+$PAGE->navbar->add(get_string('pluginname', 'block_availdep'));
 
-$PAGE->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid, $full));
+$PAGE->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', array($courseid, $full));
 
 echo $OUTPUT->header();
-$renderable = new block_availability_dependencies\output\view_page($courseid, $full);
-$renderer = $PAGE->get_renderer('block_availability_dependencies');
+$renderable = new block_availdep\output\view_page($courseid, $full);
+$renderer = $PAGE->get_renderer('block_availdep');
 echo $renderer->render($renderable);
 echo $OUTPUT->footer();

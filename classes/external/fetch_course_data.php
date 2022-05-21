@@ -17,13 +17,13 @@
 /**
  * External services for block availability dependencies.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_availability_dependencies\external;
+namespace block_availdep\external;
 
 defined('MOODLE_INTERNAL') || die;
 

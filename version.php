@@ -17,7 +17,7 @@
 /**
  * Version details.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,4 +28,4 @@ defined('MOODLE_INTERNAL') || die();
 $plugin->version   = 2022020400;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->supported = [310, 311];        // Supports these Moodle versions (since MDL-59562).
 $plugin->requires = 2020110900.00;      // Requires this Moodle version.
-$plugin->component = 'block_availability_dependencies';
+$plugin->component = 'block_availdep';

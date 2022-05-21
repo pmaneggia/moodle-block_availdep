@@ -15,20 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy provider implementation for block_availability_dependencies.
+ * Privacy provider implementation for block_availdep.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_availability_dependencies\privacy;
+namespace block_availdep\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy provider implementation for block_availability_dependencies.
+ * Privacy provider implementation for block_availdep.
  *
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>

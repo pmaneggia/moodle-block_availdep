@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_availability_dependencies'.
+ * Strings for component 'block_availdep'.
  *
- * @package   block_availability_dependencies
+ * @package   block_availdep
  * @copyright 2022 Paola Maneggia
  * @author    Paola Maneggia <paola.maneggia@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

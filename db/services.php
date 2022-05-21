@@ -17,7 +17,7 @@
 /**
  * Services for block availability dependencies.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,23 +26,23 @@
 defined('MOODLE_INTERNAL') || die();
 
 $services = array(
-    'block_availability_dependencies_service'   => array(
+    'block_availdep_service'   => array(
         'functions' => array (
-            'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
+            'block_availdep_fetch_course_modules_with_names_and_dependencies',
         ),
         'restrictedusers'   => 0,
         'enabled'           => 1,
-        'shortname'         => 'block_availability_dependencies_service',
+        'shortname'         => 'block_availdep_service',
         'downloadfiles'     => 0,
         'uploadfiles'       => 0
     )
 );
 
 $functions = array(
-    'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies' => array(
-        'classname'     => 'block_availability_dependencies\external\fetch_course_data',
+    'block_availdep_fetch_course_modules_with_names_and_dependencies' => array(
+        'classname'     => 'block_availdep\external\fetch_course_data',
         'methodname'    => 'fetch_course_modules_with_names_and_dependencies',
-        'classpath'     => 'blocks/availability_dependencies/classes/external/fetch_course_data.php',
+        'classpath'     => 'blocks/availdep/classes/external/fetch_course_data.php',
         'description'   => 'Retrieve course modules with ids and names.',
         'type'          => 'read',
         'ajax'          => true,

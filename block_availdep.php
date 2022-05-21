@@ -18,7 +18,7 @@
  * Block to display completion -> availability dependencies between
  * activities in a course.
  *
- * @package    block_availability_dependencies
+ * @package    block_availdep
  * @copyright  2022 Paola Maneggia
  * @author     Paola Maneggia <paola.maneggia@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -32,10 +32,10 @@ require_once("{$CFG->libdir}/modinfolib.php");
  * Block to display completion -> availability dependencies between
  * activities in a course.
  */
-class block_availability_dependencies extends block_base {
+class block_availdep extends block_base {
 
     public function init() {
-        $this->title = get_string('pluginname', 'block_availability_dependencies');
+        $this->title = get_string('pluginname', 'block_availdep');
     }
 
     public function applicable_formats() {
@@ -51,16 +51,16 @@ class block_availability_dependencies extends block_base {
             return $this->content;
         }
 
-        $this->page->requires->js_call_amd('block_availability_dependencies/visualiseDependencies', 'init', array($courseid, 'yes'));
+        $this->page->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', array($courseid, 'yes'));
 
         $data = new stdClass();
-        $data->d3src = '/blocks/availability_dependencies/thirdparty/d3.min.js';
-        $data->simplifiedgraphurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => 'no']))->out(false);
-        $data->fullgraphurl = (new moodle_url('/blocks/availability_dependencies/view.php', ['courseid' => $courseid, 'full' => 'yes']))->out(false);
+        $data->d3src = '/blocks/availdep/thirdparty/d3.min.js';
+        $data->simplifiedgraphurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $courseid, 'full' => 'no']))->out(false);
+        $data->fullgraphurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $courseid, 'full' => 'yes']))->out(false);
 
         // Create empty content.
         $this->content = new stdClass();
-        $this->content->text = $OUTPUT->render_from_template('block_availability_dependencies/dependencies_block', $data);;
+        $this->content->text = $OUTPUT->render_from_template('block_availdep/dependencies_block', $data);;
         $this->content->footer = '';
 
         return $this->content;

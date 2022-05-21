@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template block_availability_dependencies/dependencies
+    @template block_availdep/dependencies
 
     Template purpose and description.
 
@@ -33,16 +33,16 @@
     }
 }}
 
-<div class="block_availability_dependencies_dependencies_block">
-  <svg class="availability_dependencies block">
-    <g class="availability_dependencies" transform="scale(0.3)">
+<div class="block_availdep_dependencies_block">
+  <svg class="availdep block">
+    <g class="availdep" transform="scale(0.3)">
     </g>
   </svg>
   <a href="{{simplifiedgraphurl}}" class="btn btn-primary" data-action="new-request">
-            {{#str}}open_simplified_graph, block_availability_dependencies{{/str}}
+            {{#str}}open_simplified_graph, block_availdep{{/str}}
   </a>
   <a href="{{fullgraphurl}}" class="btn btn-primary" data-action="new-request">
-            {{#str}}open_full_graph, block_availability_dependencies{{/str}}
+            {{#str}}open_full_graph, block_availdep{{/str}}
   </a>
 </div>
 

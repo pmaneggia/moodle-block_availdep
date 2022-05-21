@@ -19,7 +19,7 @@
  * @copyright  2022 Paola Maneggia, Mathias Kegelmann
  * @author     Paola Maneggia <paola.maneggia@gmail.com>, Mathias Kegelmann <mathias.kegelmann@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @module     block/availability_dependencies
+ * @module     block/availdep
  */
 
 import Ajax from 'core/ajax';
@@ -29,7 +29,7 @@ const full = 'no';
 export const init = (courseid, full) => {
     full = full;
     var promises = Ajax.call([{
-        methodname: 'block_availability_dependencies_fetch_course_modules_with_names_and_dependencies',
+        methodname: 'block_availdep_fetch_course_modules_with_names_and_dependencies',
         args: {courseid: courseid}
     }
 ]);
@@ -80,7 +80,7 @@ let svgHeight;
  * Make the svg as wide as the parent, height is width * 0.6, center viewBox.
  */
 function setupSvg(dimensions) {
-    d3.select('svg.availability_dependencies')
+    d3.select('svg.availdep')
         .attr('width', dimensions.width)
         .attr('height', dimensions.height)
         .attr('viewBox', -dimensions.width/2 + ' ' + -dimensions.height/2
@@ -90,7 +90,7 @@ function setupSvg(dimensions) {
 }
 
 function addMarker() {
-    let dev = d3.select('g.availability_dependencies').append('defs');
+    let dev = d3.select('g.availdep').append('defs');
     dev.append('marker')
       .attr('id', 'arrow')
       .attr('viewBox', "0 0 10 10")
@@ -132,7 +132,7 @@ function addMarker() {
 }
 
 function addFilterDropShadow() {
-    let dev = d3.select('g.availability_dependencies defs');
+    let dev = d3.select('g.availdep defs');
     dev.append('filter')
       .attr('id', 'textShadow')
     .append('feDropShadow')
@@ -144,7 +144,7 @@ function addFilterDropShadow() {
 }
 
 function determineSvgSize() {
-    let svg = document.querySelector('svg.availability_dependencies');
+    let svg = document.querySelector('svg.availdep');
     let width = svg.parentNode.clientWidth;
     let orientation = screen.orientation?.type;
     let height = orientation === "portrait-primary" ? width * 1.3 : width * 0.6;
@@ -343,7 +343,7 @@ function displaySimplifiedGraph(simulation) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
  function displaySimplifiedEdges(s_edges) {
-    d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
+    d3.select('g.availdep').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', arrowColour)
         .attr('stroke-width', arrowWidth + 'px')
@@ -365,7 +365,7 @@ function displaySimplifiedGraph(simulation) {
  * @param s_edges Edges (links) in the d3 simulation.
  */
 function displayFullEdges(s_edges) {
-    d3.select('g.availability_dependencies').append('g').selectAll('line').data(s_edges)
+    d3.select('g.availdep').append('g').selectAll('line').data(s_edges)
         .enter().append('line')
         .attr('stroke', textColour)
         .attr('stroke-opacity', 0.7)
@@ -381,12 +381,12 @@ function displayFullEdges(s_edges) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displaySimplifiedNodesAndLabels(s_nodes) {
-    d3.select('g.availability_dependencies').append('g').selectAll('circle').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', nodeColour)
         .attr('stroke', 'white')
         .attr('r', 16);
-    d3.select('g.availability_dependencies').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -402,7 +402,7 @@ function displayFullEdges(s_edges) {
  * @param s_nodes Nodes in the d3 simulation.
  */
  function displayFullNodesAndLabels(s_nodes) {
-    d3.select('g.availability_dependencies').append('g').selectAll('circle').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('circle').data(s_nodes)
         .join('circle')
         .attr('fill', n => n.genus === 'activity' ? nodeColour
             : n.name === '&' ? andColour
@@ -414,7 +414,7 @@ function displayFullEdges(s_edges) {
         .attr('stroke', 'white')
         .attr('stroke-width', 3)
         .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
-    d3.select('g.availability_dependencies').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('text').data(s_nodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -432,9 +432,9 @@ let edges, nodes, labels;
  * Save the graphical representation of edges, nodes and labals.
  */
 function rememberD3Selections() {
-    edges = d3.select('g.availability_dependencies').selectAll('line');
-    nodes = d3.select('g.availability_dependencies').selectAll('circle');
-    labels = d3.select('g.availability_dependencies').selectAll('text');
+    edges = d3.select('g.availdep').selectAll('line');
+    nodes = d3.select('g.availdep').selectAll('circle');
+    labels = d3.select('g.availdep').selectAll('text');
 }
 
 /**
