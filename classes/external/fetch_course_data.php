@@ -38,7 +38,7 @@ use external_multiple_structure;
 
 use availability_completion;
 
-class fetch_course_data extends external_api  {
+class fetch_course_data extends external_api {
 
     /**
      * Returns description of method parameters.
@@ -71,7 +71,7 @@ class fetch_course_data extends external_api  {
     }
 
     /**
-     * Compute the previous activity with completion 
+     * Compute the previous activity with completion
      * for every activity in the course.
      * @return associative array assigning to each cmid the
      * cmid of its predecessor with completion.

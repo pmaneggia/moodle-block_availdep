@@ -55,8 +55,10 @@ class block_availdep extends block_base {
 
         $data = new stdClass();
         $data->d3src = '/blocks/availdep/thirdparty/d3.min.js';
-        $data->simplifiedgraphurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $courseid, 'full' => 'no']))->out(false);
-        $data->fullgraphurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $courseid, 'full' => 'yes']))->out(false);
+        $data->simplifiedgraphurl = (new moodle_url('/blocks/availdep/view.php',
+            ['courseid' => $courseid, 'full' => 'no']))->out(false);
+        $data->fullgraphurl = (new moodle_url('/blocks/availdep/view.php',
+            ['courseid' => $courseid, 'full' => 'yes']))->out(false);
 
         // Create empty content.
         $this->content = new stdClass();

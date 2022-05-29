@@ -45,7 +45,8 @@ class view_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->toggleurl = (new moodle_url('/blocks/availdep/view.php', ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
+        $data->toggleurl = (new moodle_url('/blocks/availdep/view.php',
+            ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
         $data->d3src = '/blocks/availdep/thirdparty/d3.min.js';
         return $data;
     }
