@@ -35,9 +35,6 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use external_multiple_structure;
-
-use availability_completion;
-
 class fetch_course_data extends external_api {
 
     /**
@@ -57,6 +54,11 @@ class fetch_course_data extends external_api {
      * @return //json {{id: cm_id_1, name: name_1, dep: {dep_1}, ... }
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
+        // security checks
+        $context = \context_course::instance($courseid);
+        self::validate_context($context);
+        require_login($courseid);
+
         $modinfo = get_fast_modinfo($courseid);
         $predecessors = self::compute_predecessors($modinfo);
         return array_map(

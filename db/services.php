@@ -46,6 +46,6 @@ $functions = array(
         'description'   => 'Retrieve course modules with ids and names.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false
+        'loginrequired' => true
     )
 );
