@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022071000;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->supported = [310, 311];        // Supports these Moodle versions (since MDL-59562).
-$plugin->requires = 2020110900.00;      // Requires this Moodle version.
+$plugin->version   = 2022071001;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->supported = [400];             // Supports these Moodle versions (since MDL-59562).
+$plugin->requires = 2022041902.00;      // Requires this Moodle version.
 $plugin->component = 'block_availdep';
