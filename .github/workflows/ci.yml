@@ -31,7 +31,9 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.3', '7.4', '8.0']
-        moodle-branch: ['MOODLE_311_STABLE', 'MOODLE_400_STABLE']
+        # using also 'MOODLE_311_STABLE' causes the built files to be regarded as stale,
+        # since I built them being in a branch based on 'MOODLE_400_STABLE'
+        moodle-branch: ['MOODLE_400_STABLE']
         database: [pgsql, mariadb]
 
     steps:
