@@ -23,6 +23,7 @@
  */
 
 /* global d3 */
+/* eslint-disable no-nested-ternary */
 
 import Ajax from 'core/ajax';
 
@@ -586,3 +587,5 @@ function highlightDependencies() {
         toggleHighlight = 0;
     }
 }
+
+/* eslint-enable no-nested-ternary */
