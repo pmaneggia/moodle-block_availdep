@@ -98,7 +98,7 @@ jobs:
 
       - name: Grunt Version
         if: ${{ always() }}
-        run: moodle-plugin-ci grunt --version
+        run: moodle-plugin-ci grunt -- --version
 
       - name: Grunt
         if: ${{ always() }}
