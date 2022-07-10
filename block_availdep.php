@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Block to display completion -> availability dependencies between
- * activities in a course.
+ * Display completion -> availability dependencies between activities in a course.
  *
  * @package    block_availdep
  * @copyright  2022 Paola Maneggia
@@ -29,19 +28,27 @@ defined('MOODLE_INTERNAL') || die();
 require_once("{$CFG->libdir}/modinfolib.php");
 
 /**
- * Block to display completion -> availability dependencies between
- * activities in a course.
+ * Display completion -> availability dependencies between activities in a course.
  */
 class block_availdep extends block_base {
 
+    /**
+     * {@inheritDoc}
+     */
     public function init() {
         $this->title = get_string('pluginname', 'block_availdep');
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function applicable_formats() {
         return array('course' => true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function get_content() {
         global $OUTPUT;
         $courseid = $this->page->course->id;
@@ -85,18 +92,5 @@ class block_availdep extends block_base {
         }
 
         return json_encode($dependencies);
-    }
-
-    public function get_modules_with_names() {
-        $course = $this->page->course;
-
-        $modinfo = get_fast_modinfo($course);
-        $modules = [];
-
-        foreach ($modinfo->cms as $cm) {
-            $modules[$cm->id] = $cm->get_name();
-        }
-
-        return json_encode($modules);
     }
 }

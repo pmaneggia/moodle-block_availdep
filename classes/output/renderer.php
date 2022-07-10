@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer for page view.php of block availability dependencies.
+ * Renderer for page view.php of block availdep.
  *
  * @package    block_availdep
  * @copyright  2022 Paola Maneggia
@@ -27,10 +27,18 @@ namespace block_availdep\output;
 
 use plugin_renderer_base;
 
+/**
+ * Renderer for page view.php of block availdep.
+ *
+ * @package    block_availdep
+ * @copyright  2022 Paola Maneggia
+ * @author     Paola Maneggia <paola.maneggia@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class renderer extends plugin_renderer_base {
     /**
      * Defer to template.
-     * @param viewpage $page
+     * @param viewpage $viewpage
      * @return string html for the page
      */
     public function render_view_page($viewpage) {

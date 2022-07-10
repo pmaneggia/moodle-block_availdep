@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External services for block availability dependencies.
+ * External function to fetch the course data for block_availdep.
  *
  * @package    block_availdep
  * @copyright  2022 Paola Maneggia
@@ -35,6 +35,14 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use external_multiple_structure;
+/**
+ * External function to fetch the course data for block_availdep.
+ *
+ * @package    block_availdep
+ * @copyright  2022 Paola Maneggia
+ * @author     Paola Maneggia <paola.maneggia@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class fetch_course_data extends external_api {
 
     /**
@@ -54,7 +62,7 @@ class fetch_course_data extends external_api {
      * @return //json {{id: cm_id_1, name: name_1, dep: {dep_1}, ... }
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
-        // security checks
+        // Security checks.
         $context = \context_course::instance($courseid);
         self::validate_context($context);
         require_login($courseid);
@@ -75,6 +83,7 @@ class fetch_course_data extends external_api {
     /**
      * Compute the previous activity with completion
      * for every activity in the course.
+     * @param course_modinfo $modinfo module information for course.
      * @return associative array assigning to each cmid the
      * cmid of its predecessor with completion.
      * The first activity has an invalid predecessor with id 0.

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderable for view.php page of block availability dependencies.
+ * Renderable for view.php page of block availdep.
  *
  * @package    block_availdep
  * @copyright  2022 Paola Maneggia
@@ -29,18 +29,43 @@ use renderable;
 use renderer_base;
 use templatable;
 use stdClass;
+/**
+ * Renderable for view.php page of block availdep.
+ *
+ * @package    block_availdep
+ * @copyright  2022 Paola Maneggia
+ * @author     Paola Maneggia <paola.maneggia@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class view_page implements renderable, templatable {
 
+    /**
+     * Courseid of the current course.
+     * @var $courseid
+     */
     private $courseid;
+
+    /**
+     * Parameter indicating if the graphical representation
+     * has to be full (value 'yes') or simplified (value 'no').
+     * @var $full
+     */
     private $full;
 
-    public function __construct(int $courseid, string $full) {
+    /**
+     * Construct a renderable for the page relative to the current course.
+     * @param int $courseid id of the current course.
+     * @param string $fullparam additional paramenter, value 'yes' for full representation,
+     * 'no' for simplified representation.
+     */
+    public function __construct(int $courseid, string $fullparam) {
         $this->courseid = $courseid;
-        $this->full = $full;
+        $this->full = $fullparam;
     }
 
     /**
      * Export this data so it can be used as the context for a mustache template.
+     * @param renderer_base $output
      * @return stdClass
      */
     public function export_for_template(renderer_base $output) {

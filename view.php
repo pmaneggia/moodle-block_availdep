@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Block to display completion -> availability dependencies between
- * activities in a course.
+ * Display completion -> availability dependencies between activities in a course.
  *
  * @package    block_availdep
  * @copyright  2022 Paola Maneggia
