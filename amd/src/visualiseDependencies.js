@@ -36,11 +36,14 @@ export const init = (courseid, fullparam) => {
     }
 ]);
 
+/* eslint-disable promise/always-return */
 promises[0]
     .then(dependencies => {
         let dimensions = determineSvgSize();
         setupSvg(dimensions);
-        dependencies.forEach(d => {d.depend = JSON.parse(d.depend);});
+        dependencies.forEach(d => {
+            d.depend = JSON.parse(d.depend);
+        });
         let simulation;
         if (full === 'no') {
             simulation = generateSimplifiedSimulation(dependencies);
@@ -54,8 +57,9 @@ promises[0]
         simulation.on('tick', tick);
         makeDraggable(simulation);
         makeDoubleClickable(simulation);
-    });
+    }).catch();
 };
+/* eslint-enable promise/always-return */
 
 let toggleHighlight = 0;
 
@@ -86,7 +90,7 @@ function setupSvg(dimensions) {
     d3.select('svg.availdep')
         .attr('width', dimensions.width)
         .attr('height', dimensions.height)
-        .attr('viewBox', -dimensions.width/2 + ' ' + -dimensions.height/2
+        .attr('viewBox', -dimensions.width / 2 + ' ' + -dimensions.height / 2
             + ' ' + dimensions.width + ' ' + dimensions.height);
     addMarker();
     addFilterDropShadow();
@@ -171,7 +175,7 @@ function determineSvgSize() {
  * extracted from the dependencies between course modules.
  * The nodes are indexed by the course module id.
  * @param {{id, name, depend, predecessor}[]} dependencies
- * @returns d3 simulation object
+ * @returns {Object} d3 simulation object
  */
 function generateSimplifiedSimulation(dependencies) {
     return d3.forceSimulation(dependencies)
@@ -188,15 +192,15 @@ function generateSimplifiedSimulation(dependencies) {
  * The activity nodes are indexed by the course module id,
  * the operator nodes are indexed by a generated unique id.
  * @param {{id, name, depend, predecessor}[]} dependencies
- * @returns d3 simulation object
+ * @returns {Object} d3 simulation object
  */
 function generateFullSimulation(dependencies) {
     let {edges, nodes} = computeEdgesAndNodesFullDependencies(dependencies);
     return d3.forceSimulation(nodes)
         .force('x0', d3.forceX())
         .force('y0', d3.forceY())
-        .force('isSource', d3.forceX(-svgWidth/3).strength(n => n.isSource))
-        .force('isTarget', d3.forceX(svgWidth/3).strength(n => n.isTarget))
+        .force('isSource', d3.forceX(-svgWidth / 3).strength(n => n.isSource))
+        .force('isTarget', d3.forceX(svgWidth / 3).strength(n => n.isTarget))
         .force('collide', d3.forceCollide(100).radius(n => (n.genus === 'activity' ? fullNodeRadius : operatorRadius) + 30))
         .force('charge', d3.forceManyBody().strength(-300))
         .force('link', d3.forceLink(edges).distance(50).id(d => d.id));
@@ -205,20 +209,23 @@ function generateFullSimulation(dependencies) {
 /**
  * For a simplified representation, flatten any nesting.
  * @param {{id, name, depend, predecessor}[]} dependencies
+ * @return {Object[]}
  */
 function computeEdgesSimplifiedDependencies(dependencies) {
-    // for an array of nested dependencies
+    // For an array of nested dependencies
     // extract all the cm.id of leaves of type 'completion'
     let leaves = (depend => // TODO fix small bug here d.op && !d.type
         depend.c.flatMap(d => d.op ? leaves(d) : (d.type === 'completion' ? d.cm : [])));
     return dependencies
         .filter(({depend}) => (depend !== null))
         .map(({id, name, depend, predecessor}) =>
-            leaves(depend).map(cm => {return {
-                target: id,
-                source: cm === -1 ? predecessor : cm,
-                name: name
-            };}))
+            leaves(depend).map(cm => {
+                return {
+                    target: id,
+                    source: cm === -1 ? predecessor : cm,
+                    name: name
+                };
+            }))
         .flat();
 }
 
@@ -235,6 +242,7 @@ function computeEdgesSimplifiedDependencies(dependencies) {
  * (2) must be completed an passed; (3) must be completed and failed).
  * TODO Add a node with that flag between the activity and the previous node.
  * @param {{id, name, depend, predecessor}[]} dependencies
+ * @return {{edges: Object[], nodes: Object[]}}
  */
 function computeEdgesAndNodesFullDependencies(dependencies) {
 
@@ -263,7 +271,7 @@ function computeEdgesAndNodesFullDependencies(dependencies) {
     let edges = [];
     let nodes = extractActivityNodes(dependencies);
 
-    // id is the id field of the target node, of genus 'operator' after the first call.
+    // 'id' is the id field of the target node, of genus 'operator' after the first call.
     // toGenus: genus of the target node ('activity' or 'operator')
     // dependList the list of dependencies that have the node with id id as target
     // predecessor is the cmid of the activity node for which we are extracting the information,
@@ -272,7 +280,7 @@ function computeEdgesAndNodesFullDependencies(dependencies) {
     let extractEdgesAndNodes = function(id, toGenus, dependList, predecessor) {
         dependList.forEach(el => {
             if (!el.type && el.op && !onlyNonCompletionConditionsIn(el.c)) {
-                // generate node
+                // Generate node
                 let newNode = {
                     id: getNextUID(),
                     name: el.op,
@@ -281,28 +289,28 @@ function computeEdgesAndNodesFullDependencies(dependencies) {
                     isSource: 0.1
                 };
                 nodes.push(newNode);
-                // generate edge
+                // Generate edge
                 let newEdge = {
                     target: id,
                     source: newNode.id,
                     toGenus: toGenus
                 };
                 edges.push(newEdge);
-                //recursive call
+                // Recursive call
                 extractEdgesAndNodes(newNode.id, 'operator', el.c, predecessor);
             } else if (el.type === 'completion' && el.e > 0) {
-                // generate edge
+                // Generate edge
                 let newEdge = {
                     target: id,
                     source: el.cm === -1 ? predecessor : el.cm,
                     toGenus: toGenus
                 };
-                // increase isSource of the source node to a max of 1.5
+                // Increase isSource of the source node to a max of 1.5
                 let sn = nodes.find(n => n.id === newEdge.source);
                 sn.isSource = (sn.isSource + 0.6 > 1.5 ? 1.5 : sn.isSource + 0.6);
                 edges.push(newEdge);
-            } else if (el.type === 'completion' && el.e === 0){
-                // connect with two edges a 'not' node in between
+            } else if (el.type === 'completion' && el.e === 0) {
+                // Connect with two edges a 'not' node in between
                 let newNode = {
                     id: getNextUID(),
                     name: 'not',
@@ -323,7 +331,7 @@ function computeEdgesAndNodesFullDependencies(dependencies) {
                 nodes.push(newNode);
                 edges.push(newEdgeFromNot);
                 edges.push(newEdgeToNot);
-                // increase isSource of the source node to a max of 1.5
+                // Increase isSource of the source node to a max of 1.5
                 let sn = nodes.find(n => n.id === newEdgeToNot.source);
                 sn.isSource = (sn.isSource + 0.6 > 1.5 ? 1.5 : sn.isSource + 0.6);
             }
@@ -331,7 +339,7 @@ function computeEdgesAndNodesFullDependencies(dependencies) {
     };
 
     dependencies.forEach(a => {
-        if(a.depend !== null) {
+        if (a.depend !== null) {
             // If an activity has some availability conditions, set the value for isTarget in its node.
             // For the moment I am not checking if the conditions are of the wrong type
             nodes.find(n => n.id === a.id).isTarget = 0.9;
@@ -353,10 +361,10 @@ function displaySimplifiedGraph(simulation) {
 
 /**
  * Add the graphical elements to display the edges.
- * @param {Object[]} s_edges - Edges (links) in the d3 simulation.
+ * @param {Object[]} sEdges - Edges (links) in the d3 simulation.
  */
- function displaySimplifiedEdges(s_edges) {
-    d3.select('g.availdep').append('g').selectAll('line').data(s_edges)
+ function displaySimplifiedEdges(sEdges) {
+    d3.select('g.availdep').append('g').selectAll('line').data(sEdges)
         .enter().append('line')
         .attr('stroke', arrowColour)
         .attr('stroke-width', arrowWidth + 'px')
@@ -375,10 +383,10 @@ function displaySimplifiedGraph(simulation) {
 
 /**
  * Add the graphical elements to display the edges.
- * @param {Object[]} s_edges - Edges (links) in the d3 simulation.
+ * @param {Object[]} sEdges - Edges (links) in the d3 simulation.
  */
-function displayFullEdges(s_edges) {
-    d3.select('g.availdep').append('g').selectAll('line').data(s_edges)
+function displayFullEdges(sEdges) {
+    d3.select('g.availdep').append('g').selectAll('line').data(sEdges)
         .enter().append('line')
         .attr('stroke', textColour)
         .attr('stroke-opacity', 0.7)
@@ -391,15 +399,15 @@ function displayFullEdges(s_edges) {
 
 /**
  * Add the graphical elements to display the nodes and labels.
- * @param {Object[]} s_nodes - Nodes in the d3 simulation.
+ * @param {Object[]} sNodes - Nodes in the d3 simulation.
  */
- function displaySimplifiedNodesAndLabels(s_nodes) {
-    d3.select('g.availdep').append('g').selectAll('circle').data(s_nodes)
+ function displaySimplifiedNodesAndLabels(sNodes) {
+    d3.select('g.availdep').append('g').selectAll('circle').data(sNodes)
         .join('circle')
         .attr('fill', nodeColour)
         .attr('stroke', 'white')
         .attr('r', 16);
-    d3.select('g.availdep').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('text').data(sNodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -412,10 +420,10 @@ function displayFullEdges(s_edges) {
 
 /**
  * Add the graphical elements to display the nodes and labels.
- * @param {Object[]} s_nodes - Nodes in the d3 simulation.
+ * @param {Object[]} sNodes - Nodes in the d3 simulation.
  */
- function displayFullNodesAndLabels(s_nodes) {
-    d3.select('g.availdep').append('g').selectAll('circle').data(s_nodes)
+ function displayFullNodesAndLabels(sNodes) {
+    d3.select('g.availdep').append('g').selectAll('circle').data(sNodes)
         .join('circle')
         .attr('fill', n => n.genus === 'activity' ? nodeColour
             : n.name === '&' ? andColour
@@ -427,7 +435,7 @@ function displayFullEdges(s_edges) {
         .attr('stroke', 'white')
         .attr('stroke-width', 3)
         .attr('r', n => n.genus === 'activity' ? fullNodeRadius : operatorRadius);
-    d3.select('g.availdep').append('g').selectAll('text').data(s_nodes)
+    d3.select('g.availdep').append('g').selectAll('text').data(sNodes)
         .join('text')
         .attr('fill', textColour)
         .attr('font-family', 'sans-serif')
@@ -478,7 +486,9 @@ function makeDraggable(simulation) {
     nodes
         .call(d3.drag()
         .on('start', (event, n) => {
-            if (!event.active) {simulation.alphaTarget(0.3).restart();}
+            if (!event.active) {
+                simulation.alphaTarget(0.3).restart();
+            }
             n.fx = event.x;
             n.fy = event.y;
         })
@@ -487,7 +497,11 @@ function makeDraggable(simulation) {
                 n.fx = event.x;
                 n.fy = event.y;
             })
-        .on('end', (event) => {if (!event.active) {simulation.alphaTarget(0);}})
+        .on('end', (event) => {
+            if (!event.active) {
+                simulation.alphaTarget(0);
+            }
+        })
         );
 }
 
@@ -522,10 +536,10 @@ function computeAndStoreAncestorEdgesAndNodes(node, allEdges) {
     let aEdges = new Set();
     let toBeExaminedNodes = [node];
     while (toBeExaminedNodes.length) {
-        // each time one element of the queue of nodes to be examined is moved to the set aNodes
+        // Each time one element of the queue of nodes to be examined is moved to the set aNodes
         let currentNode = toBeExaminedNodes.shift();
         aNodes.add(currentNode);
-        // iterate over the edges and look for the ones that have the current node as target
+        // Iterate over the edges and look for the ones that have the current node as target
         allEdges.data().forEach(ed => {
             if (ed.target.id === currentNode.id) {
                 aEdges.add(ed);
@@ -542,7 +556,7 @@ function computeAndStoreAncestorEdgesAndNodes(node, allEdges) {
  * Check if an edge is ancestor of node
  * @param {*} edgeOrNode the edge or node to check
  * @param {*} node
- * @return the list of ancestor nodes
+ * @return {Object[]} the list of ancestor nodes
  */
 function isAncestor(edgeOrNode, node) {
     return node.ancestors.includes(edgeOrNode);
@@ -556,19 +570,19 @@ function highlightDependencies() {
     if (toggleHighlight === 0) {
         // Reduce the opacity of all but the ancestor nodes
         let d = d3.select(this).data()[0];
-        nodes.style("opacity", function (o) {
+        nodes.style("opacity", function(o) {
             return isAncestor(o, d) ? 1 : 0.1;
         });
-        edges.style("opacity", function (o) {
+        edges.style("opacity", function(o) {
             return isAncestor(o, d) ? 1 : 0.1;
         });
-        // mark hightlighting as on
+        // Mark hightlighting as on
         toggleHighlight = 1;
     } else {
         // Put opacity back to 1 for all nodes and links
         nodes.style("opacity", 1);
         edges.style("opacity", 1);
-        // mark highlighting as off
+        // Mark highlighting as off
         toggleHighlight = 0;
     }
 }
