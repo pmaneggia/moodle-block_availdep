@@ -23,11 +23,16 @@ A block added to a course provides a small preview and two buttons linking to fu
 __New: Highlight function__: clicking on an activity node highlights the dependencies of that one activity by fading out all the information that is not relevant for its availability. Clicking another time returns to the full view.
 #### Similar Plugins
 
-There is a similar plugin in the Moodle plugin directory: [Activitymap](https://moodle.org/plugins/mod_activitymap "mod_activitymap, Moodle plugin directory"). This uses Graphviz to layout the directed graph and has some pros and cons in comparison. Maybe the biggest difference is that block activity_dependencies is of tyoe block instead of type activity and as such it is a much more lightweight plugin. It does not require any backup and restore routine and any database table.
+There is a similar plugin in the Moodle plugin directory: [Activitymap](https://moodle.org/plugins/mod_activitymap "mod_activitymap, Moodle plugin directory"). This uses Graphviz to layout the directed graph and has some pros and cons in comparison. Maybe the biggest difference is that block activity_dependencies is of type block instead of type activity and as such it is a much more lightweight plugin. It does not require any backup and restore routine and any database table.
 
 #### Installation
 1. Copy the content of this directory into the folder `blocks/availdep` inside your moodle installation.
 1. Go to the _Site administration -> Notifications_ to start the install process.
+
+#### Supported Moodle versions
+The block supports Moodle 3 (at least from 3.10) and Moodle 4.
+* Use branch `master_400` with Moodle 4
+* Use branch `master_311` with Moodle 3 (at least from 3.10)
 
 #### License
 2022 Paola Maneggia
