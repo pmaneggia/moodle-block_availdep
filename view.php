@@ -35,6 +35,7 @@ $PAGE->set_url(new moodle_url('/block/availdep/view.php', ['courseid' => $course
 require_login($courseid);
 
 $PAGE->set_pagelayout('base');
+$PAGE->set_secondary_navigation(false);
 $PAGE->set_title(get_string('pluginname', 'block_availdep'));
 $PAGE->set_heading($full == 'no' ?
     get_string('heading_simplified', 'block_availdep') :
