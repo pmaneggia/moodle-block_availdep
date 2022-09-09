@@ -61,7 +61,7 @@ class block_availdep extends block_base {
         $this->page->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', array($courseid, 'yes'));
 
         $data = new stdClass();
-        $data->d3src = new moodle_url('/blocks/availdep/thirdparty/d3.min.js');
+        $data->d3src = new moodle_url('/blocks/availdep/thirdparty/d3.v7.min.js');
         $data->simplifiedgraphurl = (new moodle_url('/blocks/availdep/view.php',
             ['courseid' => $courseid, 'full' => 'no']))->out(false);
         $data->fullgraphurl = (new moodle_url('/blocks/availdep/view.php',
