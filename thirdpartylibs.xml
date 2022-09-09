@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <libraries>
   <library>
-    <location>thirdparty/d3.min.js</location>
+    <location>thirdparty/d3.v7.min.js</location>
     <name>d3.js</name>
     <license>ISC License</license>
-    <version>v7.2.1</version>
+    <version>v7.6.1</version>
     <licenseversion></licenseversion>
   </library>
 </libraries>
