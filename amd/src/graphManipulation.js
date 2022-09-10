@@ -34,7 +34,7 @@ export function removeDisconnectedNodes(dependencies) {
     return dependencies.filter(n => notIsolatedNodes.has(n.id));
 }
 
-/* eslint-disable-next-line jsdoc/require-jsdoc */
+/* eslint-disable jsdoc/require-jsdoc */
 function computeNotIsolatedNodes(dependencies) {
     let notIsolatedNodes = new Set();
     dependencies.forEach(node => {
@@ -46,17 +46,16 @@ function computeNotIsolatedNodes(dependencies) {
     return notIsolatedNodes;
 }
 
-/* eslint-disable-next-line jsdoc/require-jsdoc */
 function hasPredecessor(node) {
     return node.depend && computePredecessors(node).length > 0;
 }
 
-/* eslint-disable-next-line jsdoc/require-jsdoc */
 function computePredecessors(node) {
     return node.depend.c.filter(x => x.type === 'completion');
 }
 
-/* eslint-disable-next-line jsdoc/require-jsdoc */
 function addAllPredecessors(node, notIsolatedNodes) {
     computePredecessors(node).forEach(x => notIsolatedNodes.add(x.cm === -1 ? x.predecessor : x.cm));
 }
+
+/* eslint-enable jsdoc/require-jsdoc */
