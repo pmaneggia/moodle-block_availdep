@@ -35,6 +35,8 @@ export function removeDisconnectedNodes(dependencies) {
 }
 
 /* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable require-jsdoc */
+
 function computeNotIsolatedNodes(dependencies) {
     let notIsolatedNodes = new Set();
     dependencies.forEach(node => {
@@ -59,3 +61,4 @@ function addAllPredecessors(node, notIsolatedNodes) {
 }
 
 /* eslint-enable jsdoc/require-jsdoc */
+/* eslint-enable require-jsdoc */
