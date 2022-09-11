@@ -62,3 +62,51 @@ function addAllPredecessors(node, notIsolatedNodes) {
 
 /* eslint-enable jsdoc/require-jsdoc */
 /* eslint-enable require-jsdoc */
+
+/**
+ * Fix dangling references to missing course modules.
+ *
+ * @param {{id, name, depend, predecessor}[]} dependencies is modified by this function:
+ * Dangling references are replaced by -2 and if any is found a "missing" node with id -2 is added.
+ */
+ export function fixDanglingReferences(dependencies) {
+    const ids = dependencies.map(x => x.id).concat([-1]);
+    let danglingReferenceFound = false;
+    dependencies.forEach(
+        node => {
+            if (node.depend) {
+                let found = handleDanglingReferencesInNode(node.depend, ids);
+                danglingReferenceFound ||= found;
+            }
+        }
+    );
+    if (danglingReferenceFound) {
+        dependencies.push({id: -2, name: 'missing', depend: null, predecessor: null});
+    }
+}
+
+/**
+ * Recursively fix dangling references in depend expression.
+ * @param {object} depend objects expressing the conditions for the availability of this node, is modified by the function call
+ * @param {int[]} ids the list of valid ids
+ * @return {boolean} was a dangling reference found and replaced
+ */
+function handleDanglingReferencesInNode(depend, ids) {
+    if (depend.op) {
+        let danglingReferenceFound = false;
+        depend.c.forEach(
+            d => {
+                let found = handleDanglingReferencesInNode(d, ids);
+                danglingReferenceFound ||= found;
+            }
+        );
+        return danglingReferenceFound;
+    } else {
+        if (depend.type === 'completion' && !ids.includes(depend.cm)) {
+            depend.cm = -2;
+            return true;
+        } else {
+            return false;
+        }
+    }
+}

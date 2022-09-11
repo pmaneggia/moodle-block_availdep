@@ -26,7 +26,7 @@
 /* eslint-disable no-nested-ternary */
 
 import Ajax from 'core/ajax';
-import {removeDisconnectedNodes} from 'block_availdep/graphManipulation';
+import {removeDisconnectedNodes, fixDanglingReferences} from 'block_availdep/graphManipulation';
 
 let full = 'no';
 
@@ -47,6 +47,7 @@ promises[0]
             d.depend = JSON.parse(d.depend);
         });
         dependencies = removeDisconnectedNodes(dependencies);
+        fixDanglingReferences(dependencies);
         let simulation;
         if (full === 'no') {
             simulation = generateSimplifiedSimulation(dependencies);
