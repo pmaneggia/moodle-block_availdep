@@ -71,7 +71,7 @@ class fetch_course_data extends external_api {
         $predecessors = self::compute_predecessors($modinfo);
         // Issue #5 Support activity deletion:
         // We drop all cms that have the deletioninprogress flag set.
-        $cms_not_deletioninprogress = array_filter(
+        $cmsnotdeletioninprogress = array_filter(
             $modinfo->cms,
             function ($cm) {
                 return !$cm->deletioninprogress;
@@ -85,7 +85,7 @@ class fetch_course_data extends external_api {
                     'depend' => $cm->availability,
                     'predecessor' => $predecessors[$cm->id]
                 ];
-            }, $cms_not_deletioninprogress);
+            }, $cmsnotdeletioninprogress);
     }
 
     /**

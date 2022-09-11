@@ -28,46 +28,45 @@
 import Ajax from 'core/ajax';
 import {removeDisconnectedNodes, fixDanglingReferences} from 'block_availdep/graphManipulation';
 
-let full = 'no';
-
 export const init = (courseid, fullparam) => {
-    full = fullparam;
-    var promises = Ajax.call([{
-        methodname: 'block_availdep_fetch_course_modules_with_names_and_dependencies',
-        args: {courseid: courseid}
-    }
-]);
-
-/* eslint-disable promise/always-return */
-promises[0]
-    .then(dependencies => {
-        let dimensions = determineSvgSize();
-        setupSvg(dimensions);
-        dependencies.forEach(d => {
-            d.depend = JSON.parse(d.depend);
-        });
-        dependencies = removeDisconnectedNodes(dependencies);
-        fixDanglingReferences(dependencies);
-        let simulation;
-        if (full === 'no') {
-            simulation = generateSimplifiedSimulation(dependencies);
-            displaySimplifiedGraph(simulation);
-        } else {
-            simulation = generateFullSimulation(dependencies);
-            displayFullGraph(simulation);
-        }
-        rememberD3Selections();
-        storeAncestorEdgesAndNodesInAllNodes(edges);
-        simulation.on('tick', tick);
-        makeDraggable(simulation);
-        makeDoubleClickable(simulation);
-    }).catch();
+    Promise.all(
+        Ajax.call([{
+            methodname: 'core_get_string',
+            args: {stringid: 'missing', component: 'availability_completion'}
+        },
+        {
+            methodname: 'block_availdep_fetch_course_modules_with_names_and_dependencies',
+            args: {courseid: courseid}
+        }])
+    ).then(([missingString, dependencies]) => {
+            let dimensions = determineSvgSize();
+            setupSvg(dimensions);
+            dependencies.forEach(d => {
+                d.depend = JSON.parse(d.depend);
+            });
+            dependencies = removeDisconnectedNodes(dependencies);
+            fixDanglingReferences(dependencies, missingString);
+            let simulation;
+            if (fullparam === 'no') {
+                simulation = generateSimplifiedSimulation(dependencies);
+                displaySimplifiedGraph(simulation);
+            } else {
+                simulation = generateFullSimulation(dependencies);
+                displayFullGraph(simulation);
+            }
+            rememberD3Selections();
+            storeAncestorEdgesAndNodesInAllNodes(edges);
+            simulation.on('tick', tick);
+            makeDraggable(simulation);
+            makeDoubleClickable(simulation);
+            return;
+        }).catch();
 };
-/* eslint-enable promise/always-return */
 
 let toggleHighlight = 0;
 
 let nodeColour = '#AEDAEA';
+let missingColour = '#FF2020';
 let textColour = '#364958';
 let arrowColour = '#516E84';
 let andColour = '#FFB400';
@@ -408,7 +407,7 @@ function displayFullEdges(sEdges) {
  function displaySimplifiedNodesAndLabels(sNodes) {
     d3.select('g.availdep').append('g').selectAll('circle').data(sNodes)
         .join('circle')
-        .attr('fill', nodeColour)
+        .attr('fill', n => n.id === -2 ? missingColour : nodeColour)
         .attr('stroke', 'white')
         .attr('r', 16);
     d3.select('g.availdep').append('g').selectAll('text').data(sNodes)
@@ -429,7 +428,7 @@ function displayFullEdges(sEdges) {
  function displayFullNodesAndLabels(sNodes) {
     d3.select('g.availdep').append('g').selectAll('circle').data(sNodes)
         .join('circle')
-        .attr('fill', n => n.genus === 'activity' ? nodeColour
+        .attr('fill', n => n.genus === 'activity' ? (n.id === -2 ? missingColour : nodeColour)
             : n.name === '&' ? andColour
             : n.name === '|' ? orColour
             : n.name === '!&' ? notAndColour

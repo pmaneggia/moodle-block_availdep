@@ -68,8 +68,9 @@ function addAllPredecessors(node, notIsolatedNodes) {
  *
  * @param {{id, name, depend, predecessor}[]} dependencies is modified by this function:
  * Dangling references are replaced by -2 and if any is found a "missing" node with id -2 is added.
+ * @param {string} missingString lang string for a missing course module
  */
- export function fixDanglingReferences(dependencies) {
+ export function fixDanglingReferences(dependencies, missingString) {
     const ids = dependencies.map(x => x.id).concat([-1]);
     let danglingReferenceFound = false;
     dependencies.forEach(
@@ -81,7 +82,7 @@ function addAllPredecessors(node, notIsolatedNodes) {
         }
     );
     if (danglingReferenceFound) {
-        dependencies.push({id: -2, name: 'missing', depend: null, predecessor: null});
+        dependencies.push({id: -2, name: missingString, depend: null, predecessor: null});
     }
 }
 
