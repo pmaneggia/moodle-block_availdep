@@ -25,7 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+<<<<<<< HEAD
 $plugin->version   = 2022071000;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->supported = [310, 311];        // Supports these Moodle versions (since MDL-59562).
 $plugin->requires = 2020110900.00;      // Requires this Moodle version.
+=======
+$plugin->version   = 2022090100;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->supported = [400, 400];        // Supports these Moodle versions (since MDL-59562).
+$plugin->requires = 2022041200.00;      // Requires this Moodle version.
+>>>>>>> 3992290 (Add 'missing' node for dangling references to missing course modules.)
 $plugin->component = 'block_availdep';
