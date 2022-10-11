@@ -30,3 +30,4 @@ $string['heading_simplified'] = 'Simplified graph of availability dependencies b
 $string['heading_full'] = 'Full graph of availability dependencies between activities';
 $string['toggle_full_simplified'] = 'Toggle view';
 $string['privacy:metadata'] = 'The block availability dependencies does not store any personal data.';
+$string['availdep:addinstance'] = 'Add a new availability dependencies block';
