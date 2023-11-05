@@ -37,16 +37,24 @@
 }}
 
 <div class="block_availdep_dependencies_block">
-  <svg class="availdep block">
-    <g class="availdep" transform="scale(0.3)">
-    </g>
-  </svg>
-  <a href="{{simplifiedgraphurl}}" class="btn btn-primary btn-sm" data-action="new-request">
-            {{#str}}open_simplified_graph, block_availdep{{/str}}
-  </a>
-  <a href="{{fullgraphurl}}" class="btn btn-primary btn-sm" data-action="new-request">
-            {{#str}}open_full_graph, block_availdep{{/str}}
-  </a>
+  <div class="d-flex justify-content-center">
+    <div class="d-flex card text-center">
+      <svg class="availdep block">
+        <g class="availdep" transform="scale(0.3)">
+        </g>
+      </svg>
+    </div>
+    <div>
+      <a href="{{simplifiedgraphurl}}" class="btn btn-primary btn-sm" data-action="new-request">
+                {{#str}}open_simplified_graph, block_availdep{{/str}}
+      </a>
+    </div>
+    <div>
+      <a href="{{fullgraphurl}}" class="btn btn-primary btn-sm" data-action="new-request">
+                {{#str}}open_full_graph, block_availdep{{/str}}
+      </a>
+    </div>
+  </div>
 </div>
 
 <!-- load d3 -->
