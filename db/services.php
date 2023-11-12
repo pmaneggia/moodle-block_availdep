@@ -35,7 +35,7 @@ $services = [
         'shortname'         => 'block_availdep_service',
         'downloadfiles'     => 0,
         'uploadfiles'       => 0,
-    ]
+    ],
 ];
 
 $functions = [
@@ -47,5 +47,5 @@ $functions = [
         'type'          => 'read',
         'ajax'          => true,
         'loginrequired' => true,
-    ]
+    ],
 ];
