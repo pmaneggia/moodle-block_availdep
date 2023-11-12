@@ -43,7 +43,7 @@ class block_availdep extends block_base {
      * {@inheritDoc}
      */
     public function applicable_formats() {
-        return array('course' => true);
+        return array('course-view' => true);
     }
 
     /**
