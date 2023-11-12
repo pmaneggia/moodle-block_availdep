@@ -51,7 +51,7 @@ class fetch_course_data extends external_api {
      */
     public static function fetch_course_modules_with_names_and_dependencies_parameters() {
         return new external_function_parameters([
-            'courseid'    => new external_value(PARAM_INT, 'course id')
+            'courseid'    => new external_value(PARAM_INT, 'course id'),
         ]);
     }
 
@@ -83,7 +83,7 @@ class fetch_course_data extends external_api {
                     'id' => $cm->id,
                     'name' => $cm->get_name(),
                     'depend' => $cm->availability,
-                    'predecessor' => $predecessors[$cm->id]
+                    'predecessor' => $predecessors[$cm->id],
                 ];
             }, $cmsnotdeletioninprogress);
     }
@@ -120,7 +120,7 @@ class fetch_course_data extends external_api {
             'id' => new external_value(PARAM_INT, 'course module id'),
             'name' => new external_value(PARAM_TEXT, 'module name', VALUE_OPTIONAL),
             'depend' => new external_value(PARAM_TEXT, 'availability conditions as json string', VALUE_OPTIONAL),
-            'predecessor' => new external_value(PARAM_INT, 'previous course module with completion')
+            'predecessor' => new external_value(PARAM_INT, 'previous course module with completion'),
         ]));
     }
 }

@@ -166,10 +166,11 @@ function addFilterDropShadow() {
  */
 function determineSvgSize() {
     let svg = document.querySelector('svg.availdep');
-    let width = svg.parentNode.clientWidth;
+    console.log('Paola element ' + document.querySelector('div.drawercontent').clientWidth);
+    //let width = svg.parentNode.parentNode.clientWidth;
+    let width = document.querySelector('div.drawercontent').clientWidth;
     let orientation = screen.orientation?.type;
-    let height = orientation === "portrait-primary" ? width * 1.3 : width * 0.6;
-    svgWidth = width;
+    let height = orientation === "landscape-primary" ? width * 1.3 : width * 0.6;
     return {width, height};
 }
 
