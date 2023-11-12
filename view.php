@@ -43,7 +43,7 @@ $PAGE->set_heading($full == 'no' ?
 );
 $PAGE->navbar->add(get_string('pluginname', 'block_availdep'));
 
-$PAGE->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', [$courseid, $full]);
+$PAGE->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', array($courseid, $full));
 
 echo $OUTPUT->header();
 $renderable = new block_availdep\output\view_page($courseid, $full);

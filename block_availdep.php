@@ -43,7 +43,7 @@ class block_availdep extends block_base {
      * {@inheritDoc}
      */
     public function applicable_formats() {
-        return ['course-view' => true];
+        return array('course-view' => true);
     }
 
     /**
@@ -58,7 +58,7 @@ class block_availdep extends block_base {
             return $this->content;
         }
 
-        $this->page->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', [$courseid, 'yes']);
+        $this->page->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', array($courseid, 'yes'));
 
         $data = new stdClass();
         $data->d3src = new moodle_url('/blocks/availdep/thirdparty/d3.v7.min.js');

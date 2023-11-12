@@ -25,27 +25,27 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$services = [
-    'block_availdep_service'   => [
-        'functions' => [
+$services = array(
+    'block_availdep_service'   => array(
+        'functions' => array (
             'block_availdep_fetch_course_modules_with_names_and_dependencies',
-        ],
+        ),
         'restrictedusers'   => 0,
         'enabled'           => 1,
         'shortname'         => 'block_availdep_service',
         'downloadfiles'     => 0,
-        'uploadfiles'       => 0,
-    ]
-];
+        'uploadfiles'       => 0
+    )
+);
 
-$functions = [
-    'block_availdep_fetch_course_modules_with_names_and_dependencies' => [
+$functions = array(
+    'block_availdep_fetch_course_modules_with_names_and_dependencies' => array(
         'classname'     => 'block_availdep\external\fetch_course_data',
         'methodname'    => 'fetch_course_modules_with_names_and_dependencies',
         'classpath'     => 'blocks/availdep/classes/external/fetch_course_data.php',
         'description'   => 'Retrieve course modules with ids and names.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => true,
-    ]
-];
+        'loginrequired' => true
+    )
+);
