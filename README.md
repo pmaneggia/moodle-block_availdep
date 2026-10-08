@@ -20,7 +20,17 @@ The user can drag and drop the nodes. Nodes that have been moved once will not b
 
 A block added to a course provides a small preview and two buttons linking to full pages with the two versions of the graphical representation.
 
-__New: Highlight function__: clicking on an activity node highlights the dependencies of that one activity by fading out all the information that is not relevant for its availability. Clicking another time returns to the full view.
+__Highlight function__: clicking on an activity node highlights the dependencies of that one activity by fading out all the information that is not relevant for its availability. Clicking another time returns to the full view.
+
+#### Permissions and security
+The graph exposes the names of all activities of a course whose availability depends on completion of some other activity, including hidden and restricted ones. Access is therefore controlled by the capability `block/availdep:view` (course context).
+
+* By default the capability is granted to the roles `editingteacher` and `manager`.
+* Users without the capability do not see the block, cannot open `view.php` and receive an empty result from the web service function `block_availdep_fetch_course_modules_with_names_and_dependencies`.
+* A teacher who wants students to see the graph can allow the capability for the role Student in their course: _Course -> More -> Permissions_, then allow `block/availdep:view` for Student. This requires the capability `moodle/role:override`. Note that students with this capability see **all** activities of the course and their availability conditions, also the hidden ones.
+
+The plugin does not define an external service anymore, so users cannot create web service tokens for it. The function is only available through the session based AJAX interface (`lib/ajax/service.php`). When upgrading from an older version, the upgrade removes the former service `block_availdep_service` together with all tokens created for it.
+
 #### Similar Plugins
 
 There is a similar plugin in the Moodle plugin directory: [Activitymap](https://moodle.org/plugins/mod_activitymap "mod_activitymap, Moodle plugin directory"). This uses Graphviz to layout the directed graph and has some pros and cons in comparison. Maybe the biggest difference is that block activity_dependencies is of type block instead of type activity and as such it is a much more lightweight plugin. It does not require any backup and restore routine and any database table.
@@ -29,10 +39,11 @@ There is a similar plugin in the Moodle plugin directory: [Activitymap](https://
 1. Copy the content of this directory into the folder `blocks/availdep` inside your moodle installation.
 1. Go to the _Site administration -> Notifications_ to start the install process.
 
+
 #### Supported Moodle versions
-The block supports Moodle 3 (at least from 3.10) and Moodle 4.
-* Use branch `master_400` with Moodle 4
-* Use branch `master_311` with Moodle 3 (at least from 3.10)
+The block supports Moodle 4 and Moodle 5.
+* Use branch `master_402` with Moodle 4
+* Use branch `main` with Moodle 5
 
 #### License
 2022 Paola Maneggia

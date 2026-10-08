@@ -63,9 +63,14 @@ class fetch_course_data extends external_api {
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
         // Security checks.
+        $params = self::validate_parameters(self::fetch_course_modules_with_names_and_dependencies_parameters(),
+            ['courseid' => $courseid]);
+        $courseid = $params['courseid'];
         $context = \context_course::instance($courseid);
         self::validate_context($context);
-        require_login($courseid);
+
+        // Activity names and availability conditions may reveal hidden settings.
+        require_capability('block/availdep:view', $context);
 
         $modinfo = get_fast_modinfo($courseid);
         $predecessors = self::compute_predecessors($modinfo);

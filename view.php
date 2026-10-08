@@ -33,6 +33,7 @@ $PAGE->set_course($COURSE);
 $PAGE->set_url(new moodle_url('/block/availdep/view.php', ['courseid' => $courseid, 'full' => $full]));
 
 require_login($courseid);
+require_capability('block/availdep:view', $context);
 
 $PAGE->set_pagelayout('base');
 $PAGE->set_secondary_navigation(false);

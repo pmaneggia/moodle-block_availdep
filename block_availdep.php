@@ -58,6 +58,14 @@ class block_availdep extends block_base {
             return $this->content;
         }
 
+        // Users without the capability get an empty block, which Moodle does not display.
+        if (!has_capability('block/availdep:view', context_course::instance($courseid))) {
+            $this->content = new stdClass();
+            $this->content->text = '';
+            $this->content->footer = '';
+            return $this->content;
+        }
+
         $this->page->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', [$courseid, 'yes']);
 
         $data = new stdClass();
