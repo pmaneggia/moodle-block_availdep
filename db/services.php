@@ -25,19 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$services = [
-    'block_availdep_service'   => [
-        'functions' => [
-            'block_availdep_fetch_course_modules_with_names_and_dependencies',
-        ],
-        'restrictedusers'   => 0,
-        'enabled'           => 1,
-        'shortname'         => 'block_availdep_service',
-        'downloadfiles'     => 0,
-        'uploadfiles'       => 0,
-    ],
-];
-
 $functions = [
     'block_availdep_fetch_course_modules_with_names_and_dependencies' => [
         'classname'     => 'block_availdep\external\fetch_course_data',
