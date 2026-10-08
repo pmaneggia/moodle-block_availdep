@@ -4,7 +4,7 @@
     <location>thirdparty/d3.v7.min.js</location>
     <name>d3.js</name>
     <license>ISC License</license>
-    <version>v7.6.1</version>
+    <version>v7.9.0</version>
     <licenseversion></licenseversion>
   </library>
 </libraries>
