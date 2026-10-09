@@ -40,8 +40,7 @@ $PAGE->set_secondary_navigation(false);
 $PAGE->set_title(get_string('pluginname', 'block_availdep'));
 $PAGE->set_heading($full == 'no' ?
     get_string('heading_simplified', 'block_availdep') :
-    get_string('heading_full', 'block_availdep')
-);
+    get_string('heading_full', 'block_availdep'));
 $PAGE->navbar->add(get_string('pluginname', 'block_availdep'));
 
 $PAGE->requires->js_call_amd('block_availdep/visualiseDependencies', 'init', [$courseid, $full]);

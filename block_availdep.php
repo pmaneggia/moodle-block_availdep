@@ -31,7 +31,6 @@ require_once("{$CFG->libdir}/modinfolib.php");
  * Display completion -> availability dependencies between activities in a course.
  */
 class block_availdep extends block_base {
-
     /**
      * {@inheritDoc}
      */
@@ -79,14 +78,18 @@ class block_availdep extends block_base {
 
         $data = new stdClass();
         $data->d3src = new moodle_url('/blocks/availdep/thirdparty/d3.v7.min.js');
-        $data->simplifiedgraphurl = (new moodle_url('/blocks/availdep/view.php',
-            ['courseid' => $courseid, 'full' => 'no']))->out(false);
-        $data->fullgraphurl = (new moodle_url('/blocks/availdep/view.php',
-            ['courseid' => $courseid, 'full' => 'yes']))->out(false);
+        $data->simplifiedgraphurl = (new moodle_url(
+            '/blocks/availdep/view.php',
+            ['courseid' => $courseid, 'full' => 'no']
+        ))->out(false);
+        $data->fullgraphurl = (new moodle_url(
+            '/blocks/availdep/view.php',
+            ['courseid' => $courseid, 'full' => 'yes']
+        ))->out(false);
 
         // Create empty content.
         $this->content = new stdClass();
-        $this->content->text = $OUTPUT->render_from_template('block_availdep/dependencies_block', $data);;
+        $this->content->text = $OUTPUT->render_from_template('block_availdep/dependencies_block', $data);
         $this->content->footer = '';
 
         return $this->content;
@@ -105,7 +108,6 @@ class block_availdep extends block_base {
 
         foreach ($modinfo->cms as $cm) {
             $dependencies[$cm->id] = json_decode($cm->availability);
-
         }
 
         return json_encode($dependencies);

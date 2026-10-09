@@ -23,12 +23,12 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Availability dependencies';
-$string['open_simplified_graph'] = 'Show simplified graph';
-$string['open_full_graph'] = 'Show full graph';
-$string['heading_simplified'] = 'Simplified graph of availability dependencies between activities';
-$string['heading_full'] = 'Full graph of availability dependencies between activities';
-$string['toggle_full_simplified'] = 'Toggle view';
-$string['privacy:metadata'] = 'The block availability dependencies does not store any personal data.';
-$string['availdep:view'] = 'View the availability dependencies block';
 $string['availdep:addinstance'] = 'Add a new availability dependencies block';
+$string['availdep:view'] = 'View the availability dependencies block';
+$string['heading_full'] = 'Full graph of availability dependencies between activities';
+$string['heading_simplified'] = 'Simplified graph of availability dependencies between activities';
+$string['open_full_graph'] = 'Show full graph';
+$string['open_simplified_graph'] = 'Show simplified graph';
+$string['pluginname'] = 'Availability dependencies';
+$string['privacy:metadata'] = 'The block availability dependencies does not store any personal data.';
+$string['toggle_full_simplified'] = 'Toggle view';

@@ -25,8 +25,6 @@
 
 namespace block_availdep\external;
 
-defined('MOODLE_INTERNAL') || die;
-
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
@@ -42,7 +40,6 @@ use core_external\external_multiple_structure;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fetch_course_data extends external_api {
-
     /**
      * Returns description of method parameters.
      * @return external_function_parameters
@@ -61,8 +58,10 @@ class fetch_course_data extends external_api {
      */
     public static function fetch_course_modules_with_names_and_dependencies($courseid) {
         // Security checks.
-        $params = self::validate_parameters(self::fetch_course_modules_with_names_and_dependencies_parameters(),
-            ['courseid' => $courseid]);
+        $params = self::validate_parameters(
+            self::fetch_course_modules_with_names_and_dependencies_parameters(),
+            ['courseid' => $courseid]
+        );
         $courseid = $params['courseid'];
         $context = \context_course::instance($courseid);
         self::validate_context($context);
@@ -88,7 +87,9 @@ class fetch_course_data extends external_api {
                     'depend' => $cm->availability,
                     'predecessor' => $predecessors[$cm->id],
                 ];
-            }, $cmsnotdeletioninprogress);
+            },
+            $cmsnotdeletioninprogress
+        );
     }
 
     /**

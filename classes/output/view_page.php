@@ -38,7 +38,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class view_page implements renderable, templatable {
-
     /**
      * Courseid of the current course.
      * @var $courseid
@@ -70,8 +69,10 @@ class view_page implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->toggleurl = (new moodle_url('/blocks/availdep/view.php',
-            ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]))->out(false);
+        $data->toggleurl = (new moodle_url(
+            '/blocks/availdep/view.php',
+            ['courseid' => $this->courseid, 'full' => ($this->full === 'no' ? 'yes' : 'no')]
+        ))->out(false);
         $data->d3src = new moodle_url('/blocks/availdep/thirdparty/d3.v7.min.js');
         return $data;
     }
