@@ -31,6 +31,19 @@ The graph exposes the names of all activities of a course whose availability dep
 
 The plugin does not define an external service anymore, so users cannot create web service tokens for it. The function is only available through the session based AJAX interface (`lib/ajax/service.php`). When upgrading from an older version, the upgrade removes the former service `block_availdep_service` together with all tokens created for it.
 
+#### Reduction of availability conditions
+The graph displays only the availability conditions of type __activity completion__. All other conditions (date, grade, group, user profile field, etc.) are removed. Use with care when defining groups with logical operators mixing completion and non completion conditions.
+For a group containing a completion condition A and a removed condition B the following rules apply:
+
+| Operator | Result |
+|---|---|
+| `A & B` (all) | `A` |
+| `A !\| B` (none) | `!A` |
+| `A \| B` (any) | dropped, as if no condition were defined |
+| `A !& B` (not all) | dropped, as if no condition were defined |
+
+For nested groups the rules are applied from the inside out: a dropped group counts as a removed condition for its parent group. A group left without any condition is dropped as well.
+
 #### Similar Plugins
 
 There is a similar plugin in the Moodle plugin directory: [Activitymap](https://moodle.org/plugins/mod_activitymap "mod_activitymap, Moodle plugin directory"). This uses Graphviz to layout the directed graph and has some pros and cons in comparison. Maybe the biggest difference is that block activity_dependencies is of type block instead of type activity and as such it is a much more lightweight plugin. It does not require any backup and restore routine and any database table.

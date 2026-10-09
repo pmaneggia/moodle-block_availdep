@@ -84,12 +84,67 @@ class fetch_course_data extends external_api {
                 return [
                     'id' => $cm->id,
                     'name' => $cm->get_name(),
-                    'depend' => $cm->availability,
+                    'depend' => self::reduce_availability($cm->availability),
                     'predecessor' => $predecessors[$cm->id],
                 ];
             },
             $cmsnotdeletioninprogress
         );
+    }
+
+    /**
+     * Reduce an availability json string to its completion conditions.
+     *
+     * Conditions of other types are dropped, so that no hidden settings are disclosed.
+     * In groups where all children must hold ("&" and "!|") a dropped child is
+     * treated as fulfilled and simply removed. In groups where one child is enough
+     * ("|" and "!&") a dropped child makes the whole group undecidable,
+     * so the group is dropped as well.
+     *
+     * @param string|null $availability availability conditions as json string.
+     * @return string|null reduced availability as json string or null if nothing is left.
+     */
+    public static function reduce_availability(?string $availability): ?string {
+        if (empty($availability)) {
+            return null;
+        }
+        $tree = json_decode($availability);
+        if (!($tree instanceof \stdClass)) {
+            return null;
+        }
+        $reduced = self::reduce_availability_node($tree);
+        return $reduced === null ? null : json_encode($reduced);
+    }
+
+    /**
+     * Reduce a single availability node (group or condition), see {@see reduce_availability()}.
+     *
+     * @param \stdClass $node availability node.
+     * @return \stdClass|null reduced node or null if the node has to be dropped.
+     */
+    private static function reduce_availability_node(\stdClass $node): ?\stdClass {
+        if (!isset($node->c)) {
+            return (($node->type ?? '') === 'completion') ? $node : null;
+        }
+        if (!is_array($node->c) || !isset($node->op)) {
+            return null;
+        }
+
+        $anyoneenough = in_array($node->op, ['|', '!&'], true);
+        $children = [];
+        foreach ($node->c as $child) {
+            $reduced = ($child instanceof \stdClass) ? self::reduce_availability_node($child) : null;
+            if ($reduced !== null) {
+                $children[] = $reduced;
+            } else if ($anyoneenough) {
+                return null;
+            }
+        }
+        if (empty($children)) {
+            return null;
+        }
+        $node->c = $children;
+        return $node;
     }
 
     /**
