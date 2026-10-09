@@ -35,7 +35,6 @@ export function removeDisconnectedNodes(dependencies) {
 }
 
 /* eslint-disable jsdoc/require-jsdoc */
-/* eslint-disable require-jsdoc */
 
 function computeNotIsolatedNodes(dependencies) {
     let notIsolatedNodes = new Set();
@@ -61,7 +60,6 @@ function addAllPredecessors(node, notIsolatedNodes) {
 }
 
 /* eslint-enable jsdoc/require-jsdoc */
-/* eslint-enable require-jsdoc */
 
 /**
  * Fix dangling references to missing course modules.

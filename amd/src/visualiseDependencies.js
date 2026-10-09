@@ -26,6 +26,7 @@
 /* eslint-disable no-nested-ternary */
 
 import Ajax from 'core/ajax';
+import Notification from 'core/notification';
 import {removeDisconnectedNodes, fixDanglingReferences} from 'block_availdep/graphManipulation';
 
 export const init = (courseid, fullparam) => {
@@ -61,7 +62,7 @@ export const init = (courseid, fullparam) => {
             makeDraggable(simulation);
             makeDoubleClickable(simulation);
             return;
-        }).catch();
+        }).catch(Notification.exception);
 };
 
 let toggleHighlight = 0;
