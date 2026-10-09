@@ -57,6 +57,7 @@ export const init = (courseid, fullparam) => {
             rememberD3Selections();
             storeAncestorEdgesAndNodesInAllNodes(edges);
             simulation.on('tick', tick);
+            fitGraphToSvg(simulation, dimensions);
             makeDraggable(simulation);
             makeDoubleClickable(simulation);
             return;
@@ -82,6 +83,7 @@ let operatorRadius = 20;
 let arrowWidth = 2;
 
 let svgWidth;
+let bounds = null;
 
 /**
  * Set width, height and viewBox of the svg element of class 'availdep'.
@@ -91,8 +93,14 @@ let svgWidth;
  */
 function setupSvg(dimensions) {
     d3.select('svg.availdep')
-        .attr('width', dimensions.width)
-        .attr('height', dimensions.height)
+        .attr('width', '100%')
+        .attr('height', null)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('display', 'block')
+        .style('max-width', '100%')
+        .style('height', 'auto')
+        .style('overflow', 'hidden')
+        .style('aspect-ratio', dimensions.width + ' / ' + dimensions.height)
         .attr('viewBox', -dimensions.width / 2 + ' ' + -dimensions.height / 2
             + ' ' + dimensions.width + ' ' + dimensions.height);
     addMarker();
@@ -166,7 +174,7 @@ function addFilterDropShadow() {
  */
 function determineSvgSize() {
     let svg = document.querySelector('svg.availdep');
-    let width = svg.parentNode.clientWidth;
+    let width = svg.parentNode.clientWidth || svg.parentNode.getBoundingClientRect().width || 300;
     let orientation = screen.orientation?.type;
     let height = orientation === "portrait-primary" ? width * 1.3 : width * 0.6;
     svgWidth = width;
@@ -465,6 +473,12 @@ function rememberD3Selections() {
  * Update the simulation.
  */
 function tick() {
+    if (bounds) {
+        nodes.each(n => {
+            n.x = clampToBounds(n.x, 'X');
+            n.y = clampToBounds(n.y, 'Y');
+        });
+    }
     nodes
         .attr('cx', n => n.x)
         .attr('cy', n => n.y);
@@ -481,6 +495,50 @@ function tick() {
 }
 
 /**
+ * The initial layout is computed at once, without animation, and the viewBox is
+ * then fitted a single time to the bounding box of the graph, so that it is centered and fully visible.
+ * Afterwards the simulation is only restarted by dragging nodes.
+ * @param {Object} simulation - d3 simulation object
+ * @param {{width: number, height: number}} dimensions
+ */
+function fitGraphToSvg(simulation, dimensions) {
+    let svg = d3.select('svg.availdep');
+    let group = svg.select('g.availdep');
+    group.attr('transform', null);
+    simulation.stop();
+    let iterations = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+    simulation.tick(iterations);
+    tick();
+    let box = group.node().getBBox();
+    if (!box.width || !box.height) {
+        return;
+    }
+    let padding = 20;
+    let ratio = dimensions.width / dimensions.height;
+    let w = box.width + 2 * padding;
+    let h = box.height + 2 * padding;
+    if (w / h < ratio) {
+        w = h * ratio;
+    } else {
+        h = w / ratio;
+    }
+    let cx = box.x + box.width / 2;
+    let cy = box.y + box.height / 2;
+    svg.attr('viewBox', (cx - w / 2) + ' ' + (cy - h / 2) + ' ' + w + ' ' + h);
+    bounds = {minX: cx - w / 2 + padding, maxX: cx + w / 2 - padding, minY: cy - h / 2 + padding, maxY: cy + h / 2 - padding};
+}
+
+/**
+ * Keep a coordinate inside the visible area of the svg.
+ * @param {number} value
+ * @param {string} axis - 'X' or 'Y'
+ * @returns {number}
+ */
+function clampToBounds(value, axis) {
+    return bounds ? Math.min(bounds['max' + axis], Math.max(bounds['min' + axis], value)) : value;
+}
+
+/**
  * Make nodes draggable.
  * Once dragged a node is fixed to its assigned position in the simulation.
  * @param {Object} simulation - d3 simulation object
@@ -492,13 +550,13 @@ function makeDraggable(simulation) {
             if (!event.active) {
                 simulation.alphaTarget(0.3).restart();
             }
-            n.fx = event.x;
-            n.fy = event.y;
+            n.fx = clampToBounds(event.x, 'X');
+            n.fy = clampToBounds(event.y, 'Y');
         })
         .on('drag',
             (event, n) => {
-                n.fx = event.x;
-                n.fy = event.y;
+                n.fx = clampToBounds(event.x, 'X');
+                n.fy = clampToBounds(event.y, 'Y');
             })
         .on('end', (event) => {
             if (!event.active) {
