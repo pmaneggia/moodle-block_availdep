@@ -40,6 +40,15 @@ class block_availdep extends block_base {
     }
 
     /**
+     * Hide the block header.
+     *
+     * @return bool
+     */
+    public function hide_header() {
+        return true;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function applicable_formats() {
